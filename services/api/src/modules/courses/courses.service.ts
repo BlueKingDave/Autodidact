@@ -1,0 +1,155 @@
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { eq, sql } from 'drizzle-orm';
+import { getDb, courses, modules, enrollments, moduleProgress } from '@autodidact/db';
+import type { IQueueProvider } from '@autodidact/providers';
+import type { CreateCourseRequest } from '@autodidact/schemas';
+import { ApiAgentClient } from '../../services/agent.client.js';
+import { QUEUES, JOB_NAMES } from '../../queues/definitions.js';
+
+@Injectable()
+export class CoursesService {
+  constructor(
+    private readonly agentClient: ApiAgentClient,
+    private readonly queueProvider: IQueueProvider,
+  ) {}
+
+  async createOrReuse(userId: string, dto: CreateCourseRequest) {
+    const db = getDb();
+
+    // Generate embedding to find similar existing courses
+    const embedding = await this.agentClient.generateEmbedding(dto.topic);
+    const vectorLiteral = `[${embedding.join(',')}]`;
+
+    // Cosine similarity search — threshold 0.92
+    const existing = await db.execute(sql`
+      SELECT id, title, description, status,
+             1 - (topic_embedding <=> ${vectorLiteral}::vector) AS similarity
+      FROM courses
+      WHERE status = 'ready'
+        AND is_public = TRUE
+        AND topic_embedding IS NOT NULL
+        AND 1 - (topic_embedding <=> ${vectorLiteral}::vector) > 0.92
+      ORDER BY similarity DESC
+      LIMIT 1
+    `);
+
+    if (existing.rows.length > 0) {
+      const row = existing.rows[0] as { id: string; title: string };
+      await this.enrollUser(userId, row.id);
+      return { courseId: row.id, status: 'ready', reused: true };
+    }
+
+    // Create new course and enqueue generation
+    const slug = dto.topic
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/(^-|-$)/g, '');
+
+    const [course] = await db
+      .insert(courses)
+      .values({
+        topic: dto.topic,
+        slug,
+        title: dto.topic,
+        description: '',
+        difficulty: dto.difficulty,
+        status: 'pending',
+        generatedBy: userId,
+      })
+      .returning({ id: courses.id });
+
+    if (!course) throw new Error('Failed to create course');
+
+    const jobId = await this.queueProvider.enqueue(
+      QUEUES.COURSE_GENERATION,
+      JOB_NAMES.GENERATE_COURSE,
+      {
+        courseId: course.id,
+        userId,
+        topic: dto.topic,
+        difficulty: dto.difficulty,
+        moduleCount: dto.preferredModuleCount,
+      },
+      { attempts: 3, backoffDelay: 5000 },
+    );
+
+    return { courseId: course.id, jobId, status: 'pending', reused: false };
+  }
+
+  async enrollUser(userId: string, courseId: string) {
+    const db = getDb();
+
+    // Upsert enrollment
+    await db
+      .insert(enrollments)
+      .values({ userId, courseId })
+      .onConflictDoUpdate({
+        target: [enrollments.userId, enrollments.courseId],
+        set: { lastAccessedAt: new Date() },
+      });
+
+    // Create module_progress rows for all modules if not present
+    const courseModules = await db
+      .select({ id: modules.id, position: modules.position })
+      .from(modules)
+      .where(eq(modules.courseId, courseId))
+      .orderBy(modules.position);
+
+    for (const mod of courseModules) {
+      await db
+        .insert(moduleProgress)
+        .values({
+          userId,
+          moduleId: mod.id,
+          courseId,
+          status: mod.position === 0 ? 'available' : 'locked',
+        })
+        .onConflictDoNothing();
+    }
+  }
+
+  async getCourse(courseId: string) {
+    const db = getDb();
+    const [course] = await db
+      .select()
+      .from(courses)
+      .where(eq(courses.id, courseId))
+      .limit(1);
+    if (!course) throw new NotFoundException('Course not found');
+    return course;
+  }
+
+  async getCourseWithModules(courseId: string) {
+    const db = getDb();
+    const course = await this.getCourse(courseId);
+    const courseModules = await db
+      .select()
+      .from(modules)
+      .where(eq(modules.courseId, courseId))
+      .orderBy(modules.position);
+    return { ...course, modules: courseModules };
+  }
+
+  async getUserCourses(userId: string) {
+    const db = getDb();
+    return db
+      .select({
+        id: courses.id,
+        title: courses.title,
+        description: courses.description,
+        difficulty: courses.difficulty,
+        status: courses.status,
+        enrolledAt: enrollments.enrolledAt,
+        completedAt: enrollments.completedAt,
+      })
+      .from(enrollments)
+      .innerJoin(courses, eq(enrollments.courseId, courses.id))
+      .where(eq(enrollments.userId, userId))
+      .orderBy(enrollments.lastAccessedAt);
+  }
+
+  async getJobStatus(jobId: string) {
+    const status = await this.queueProvider.getJobStatus(QUEUES.COURSE_GENERATION, jobId);
+    return { jobId, status };
+  }
+}

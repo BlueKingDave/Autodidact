@@ -1,0 +1,84 @@
+import { Worker } from 'bullmq';
+import type { Redis } from 'ioredis';
+import { eq, and } from 'drizzle-orm';
+import { getDb, courses, modules } from '@autodidact/db';
+import type { IQueueProvider } from '@autodidact/providers';
+import type { CourseGenerationJobData, ModuleBlueprint } from '@autodidact/types';
+import type { Logger } from '@autodidact/observability';
+import { QUEUES, JOB_NAMES } from '../queues/definitions.js';
+import type { AgentClient } from '../services/agent.client.js';
+
+export function createCourseGenerationWorker(
+  connection: Redis,
+  agentClient: AgentClient,
+  queueProvider: IQueueProvider,
+  logger: Logger,
+): Worker {
+  return new Worker<CourseGenerationJobData>(
+    QUEUES.COURSE_GENERATION,
+    async (job) => {
+      const { courseId, userId, topic, difficulty, moduleCount } = job.data;
+      const db = getDb();
+      logger.info({ courseId, topic }, 'Starting course generation');
+
+      await db
+        .update(courses)
+        .set({ status: 'generating', updatedAt: new Date() })
+        .where(eq(courses.id, courseId));
+
+      const blueprint = await agentClient.generateCourse({
+        courseId,
+        userId,
+        topic,
+        difficulty,
+        moduleCount,
+      });
+
+      // Write all modules and update course in a single transaction
+      await db.transaction(async (tx) => {
+        await tx
+          .update(courses)
+          .set({
+            title: blueprint.title,
+            description: blueprint.description,
+            difficulty: blueprint.difficulty,
+            estimatedHours: Math.ceil(blueprint.estimatedHours),
+            status: 'ready',
+            blueprint,
+            updatedAt: new Date(),
+          })
+          .where(eq(courses.id, courseId));
+
+        const moduleRows = blueprint.modules.map((m: ModuleBlueprint) => ({
+          courseId,
+          position: m.position,
+          title: m.title,
+          description: m.description,
+          objectives: m.objectives,
+          contentOutline: m.contentOutline,
+          estimatedMinutes: m.estimatedMinutes,
+        }));
+
+        await tx.insert(modules).values(moduleRows);
+      });
+
+      // Enqueue embedding generation
+      await queueProvider.enqueue(
+        QUEUES.EMBEDDING,
+        JOB_NAMES.GENERATE_EMBEDDING,
+        { courseId, topic },
+        { attempts: 3, backoffDelay: 5000 },
+      );
+
+      logger.info({ courseId }, 'Course generation complete');
+    },
+    {
+      connection,
+      concurrency: 3,
+      defaultJobOptions: {
+        attempts: 3,
+        backoff: { type: 'exponential', delay: 5000 },
+      },
+    },
+  );
+}

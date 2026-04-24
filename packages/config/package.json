@@ -1,0 +1,11 @@
+{
+  "name": "@autodidact/config",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    "./tsconfig/base": "./tsconfig.base.json",
+    "./tsconfig/react-native": "./tsconfig.react-native.json",
+    "./eslint": "./eslint.config.base.mjs",
+    "./prettier": "./prettier.config.mjs"
+  }
+}

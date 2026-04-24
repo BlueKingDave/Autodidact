@@ -1,0 +1,36 @@
+{
+  "name": "@autodidact/providers",
+  "version": "0.0.0",
+  "private": true,
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "typecheck": "tsc --noEmit",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.27.0",
+    "@langchain/anthropic": "^0.3.0",
+    "@langchain/core": "^0.3.0",
+    "@langchain/langgraph": "^0.2.0",
+    "@langchain/langgraph-checkpoint-postgres": "^0.0.12",
+    "@langchain/openai": "^0.3.0",
+    "@supabase/supabase-js": "^2.45.0",
+    "bullmq": "^5.0.0",
+    "ioredis": "^5.4.0",
+    "jsonwebtoken": "^9.0.2"
+  },
+  "devDependencies": {
+    "@autodidact/config": "workspace:*",
+    "@autodidact/types": "workspace:*",
+    "@types/jsonwebtoken": "^9.0.6",
+    "typescript": "^5.5.4"
+  }
+}
