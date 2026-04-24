@@ -10,6 +10,7 @@ export interface UserProfile {
 }
 
 export interface AuthUser {
+  id: string;
   supabaseId: string;
   email: string;
 }

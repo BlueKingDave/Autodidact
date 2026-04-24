@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { eq, sql } from 'drizzle-orm';
-import { getDb, courses, modules, enrollments, moduleProgress } from '@autodidact/db';
+
+import { getDb, courses, modules, enrollments, moduleProgress, eq, sql } from '@autodidact/db';
 import type { IQueueProvider } from '@autodidact/providers';
 import type { CreateCourseRequest } from '@autodidact/schemas';
 import { ApiAgentClient } from '../../services/agent.client.js';
@@ -68,9 +68,9 @@ export class CoursesService {
         userId,
         topic: dto.topic,
         difficulty: dto.difficulty,
-        moduleCount: dto.preferredModuleCount,
+        moduleCount: dto.moduleCount,
       },
-      { attempts: 3, backoffDelay: 5000 },
+      { attempts: 3, backoff: { type: 'exponential', delay: 5000 } },
     );
 
     return { courseId: course.id, jobId, status: 'pending', reused: false };

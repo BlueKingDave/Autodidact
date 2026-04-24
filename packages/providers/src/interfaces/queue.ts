@@ -2,18 +2,13 @@ import type { JobStatus } from '@autodidact/types';
 
 export interface EnqueueOptions {
   attempts?: number;
-  backoffDelay?: number;
+  backoff?: { type: 'exponential' | 'fixed'; delay: number };
   delay?: number;
-  priority?: number;
+  jobId?: string;
 }
 
 export interface IQueueProvider {
-  enqueue<T>(
-    queueName: string,
-    jobName: string,
-    data: T,
-    options?: EnqueueOptions,
-  ): Promise<string>;
-  getJobStatus(queueName: string, jobId: string): Promise<JobStatus>;
+  enqueue<T>(queue: string, name: string, data: T, opts?: EnqueueOptions): Promise<string>;
+  getJobStatus(queue: string, jobId: string): Promise<JobStatus>;
   close(): Promise<void>;
 }

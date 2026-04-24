@@ -1,18 +1,29 @@
-import { PostgresSaver } from '@langchain/langgraph-checkpoint-postgres';
+import type { BaseCheckpointSaver } from '@langchain/langgraph';
 import type { ICheckpointerProvider } from '../../interfaces/checkpointer.js';
 
+// Lazy import to avoid requiring the package when not used
 export class PostgresCheckpointerProvider implements ICheckpointerProvider {
-  private readonly saver: PostgresSaver;
+  private saver: BaseCheckpointSaver | null = null;
+  private readonly connectionString: string;
 
-  constructor(connectionString: string) {
-    this.saver = PostgresSaver.fromConnString(connectionString);
+  constructor(config: { connectionString: string }) {
+    this.connectionString = config.connectionString;
   }
 
-  getCheckpointer() {
+  getCheckpointer(): BaseCheckpointSaver {
+    if (!this.saver) {
+      throw new Error(
+        'PostgresCheckpointerProvider not initialized. Call init() first.',
+      );
+    }
     return this.saver;
   }
 
-  async close(): Promise<void> {
-    await this.saver.end();
+  async init(): Promise<void> {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const mod = await import('@langchain/langgraph-checkpoint-postgres' as any);
+    const PostgresSaver = mod.PostgresSaver ?? mod.default?.PostgresSaver;
+    this.saver = PostgresSaver.fromConnString(this.connectionString);
+    await (this.saver as unknown as { setup(): Promise<void> }).setup();
   }
 }

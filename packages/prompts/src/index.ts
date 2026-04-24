@@ -1,3 +1,7 @@
-export * from './course-generation.js';
-export * from './module-teacher.js';
-export * from './completion-evaluator.js';
+export { COURSE_GENERATION_SYSTEM_PROMPT, buildCourseGenerationPrompt } from './course-generation.js';
+export { buildModuleSystemPrompt } from './module-teacher.js';
+export type { UserContext } from './module-teacher.js';
+export {
+  COMPLETION_EVALUATOR_SYSTEM_PROMPT,
+  buildCompletionEvaluatorPrompt,
+} from './completion-evaluator.js';

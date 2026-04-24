@@ -1,62 +1,47 @@
+import { HumanMessage, SystemMessage } from '@langchain/core/messages';
 import { CourseBlueprintSchema } from '@autodidact/schemas';
 import {
-  COURSE_BLUEPRINT_SYSTEM_PROMPT,
+  COURSE_GENERATION_SYSTEM_PROMPT,
   buildCourseGenerationPrompt,
 } from '@autodidact/prompts';
 import type { ILLMProvider } from '@autodidact/providers';
 import type { CourseGenerationStateType } from './state.js';
 
-export function makeGenerateBlueprintNode(llm: ILLMProvider) {
+export function makeGenerateBlueprintNode(llmProvider: ILLMProvider) {
   return async (state: CourseGenerationStateType): Promise<Partial<CourseGenerationStateType>> => {
-    const prompt = buildCourseGenerationPrompt({
-      topic: state.topic,
-      difficulty: state.difficulty,
-      moduleCount: state.moduleCount,
-    });
+    const model = llmProvider.getModel();
 
-    const structured = llm.withStructuredOutput(CourseBlueprintSchema);
-    try {
-      const blueprint = await structured.invoke([
-        { role: 'system', content: COURSE_BLUEPRINT_SYSTEM_PROMPT },
-        { role: 'user', content: prompt },
-      ]);
-      return { blueprint, validationErrors: [], retryCount: state.retryCount };
-    } catch (err) {
-      // Fall back to raw text + manual parse on next node
-      const raw = await llm.chatOnce([
-        { role: 'system', content: COURSE_BLUEPRINT_SYSTEM_PROMPT },
-        { role: 'user', content: prompt },
-      ]);
-      return { rawResponse: raw, blueprint: null, retryCount: state.retryCount + 1 };
-    }
-  };
-}
+    const messages = [
+      new SystemMessage(COURSE_GENERATION_SYSTEM_PROMPT),
+      new HumanMessage(
+        buildCourseGenerationPrompt({
+          topic: state.topic,
+          difficulty: state.difficulty,
+          moduleCount: state.moduleCount,
+        }),
+      ),
+    ];
 
-export function makeValidateBlueprintNode(_llm: ILLMProvider) {
-  return async (state: CourseGenerationStateType): Promise<Partial<CourseGenerationStateType>> => {
-    if (state.blueprint) return {};
+    const response = await model.invoke(messages);
+    const content = typeof response.content === 'string'
+      ? response.content
+      : JSON.stringify(response.content);
 
-    if (!state.rawResponse) {
-      return { error: 'No response from LLM', validationErrors: ['empty response'] };
-    }
+    // Extract JSON from the response (handle markdown code blocks)
+    const jsonMatch = content.match(/```(?:json)?\s*([\s\S]*?)```/)
+      ?? content.match(/(\{[\s\S]*\})/);
+    const jsonStr = jsonMatch ? jsonMatch[1] ?? content : content;
 
-    // Extract JSON from raw response
-    const jsonMatch = state.rawResponse.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) {
-      return {
-        validationErrors: ['Could not find JSON in response'],
-        blueprint: null,
-      };
-    }
+    const parsed = CourseBlueprintSchema.safeParse(JSON.parse(jsonStr.trim()));
 
-    const result = CourseBlueprintSchema.safeParse(JSON.parse(jsonMatch[0]));
-    if (result.success) {
-      return { blueprint: result.data, validationErrors: [] };
+    if (parsed.success) {
+      return { blueprint: parsed.data, retryCount: state.retryCount };
     }
 
     return {
-      validationErrors: result.error.errors.map((e) => e.message),
       blueprint: null,
+      retryCount: state.retryCount + 1,
+      error: parsed.error.message,
     };
   };
 }

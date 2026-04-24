@@ -1,32 +1,36 @@
 import type { FastifyInstance } from 'fastify';
-import type { CourseGenerationJobData } from '@autodidact/types';
-import type { buildCourseGenerationGraph } from '../graphs/course-generation/graph.js';
+import { z } from 'zod';
+import type { ILLMProvider } from '@autodidact/providers';
+import { buildCourseGenerationGraph } from '../graphs/course-generation/graph.js';
+import type { DifficultyLevel } from '@autodidact/types';
 
-type CourseGraph = ReturnType<typeof buildCourseGenerationGraph>;
+const GenerateCourseBodySchema = z.object({
+  courseId: z.string().uuid(),
+  topic: z.string(),
+  difficulty: z.enum(['beginner', 'intermediate', 'advanced']),
+  moduleCount: z.number().int().min(1).max(20),
+});
 
 export async function registerGenerateCourseRoute(
   app: FastifyInstance,
-  graph: CourseGraph,
+  llmProvider: ILLMProvider,
 ) {
-  app.post<{ Body: CourseGenerationJobData }>('/course/generate', async (request, reply) => {
-    const { topic, difficulty, moduleCount } = request.body;
+  const graph = buildCourseGenerationGraph(llmProvider);
+
+  app.post('/course/generate', async (request, reply) => {
+    const body = GenerateCourseBodySchema.parse(request.body);
 
     const result = await graph.invoke({
-      topic,
-      difficulty: difficulty as 'beginner' | 'intermediate' | 'advanced',
-      moduleCount,
-      rawResponse: null,
+      topic: body.topic,
+      difficulty: body.difficulty as DifficultyLevel,
+      moduleCount: body.moduleCount,
       blueprint: null,
-      validationErrors: [],
       retryCount: 0,
       error: null,
     });
 
     if (!result.blueprint) {
-      return reply.status(422).send({
-        error: result.error ?? 'Failed to generate course blueprint',
-        validationErrors: result.validationErrors,
-      });
+      return reply.status(500).send({ error: 'Failed to generate course blueprint', detail: result.error });
     }
 
     return reply.send({ blueprint: result.blueprint });

@@ -1,12 +1,16 @@
 import { OpenAIEmbeddings } from '@langchain/openai';
+import type { Embeddings } from '@langchain/core/embeddings';
 import type { IEmbeddingProvider } from '../../interfaces/embedding.js';
 
 export class OpenAIEmbeddingProvider implements IEmbeddingProvider {
-  readonly dimensions = 1536;
   private readonly embeddings: OpenAIEmbeddings;
 
-  constructor(apiKey: string, modelName = 'text-embedding-3-small') {
-    this.embeddings = new OpenAIEmbeddings({ apiKey, model: modelName });
+  constructor(config: { apiKey: string; model?: string }) {
+    this.embeddings = new OpenAIEmbeddings({
+      apiKey: config.apiKey,
+      model: config.model ?? 'text-embedding-3-small',
+      dimensions: 1536,
+    });
   }
 
   async embed(text: string): Promise<number[]> {
@@ -15,5 +19,9 @@ export class OpenAIEmbeddingProvider implements IEmbeddingProvider {
 
   async embedBatch(texts: string[]): Promise<number[][]> {
     return this.embeddings.embedDocuments(texts);
+  }
+
+  getEmbeddings(): Embeddings {
+    return this.embeddings;
   }
 }

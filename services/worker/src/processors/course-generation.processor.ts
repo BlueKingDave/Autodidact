@@ -1,7 +1,6 @@
 import { Worker } from 'bullmq';
 import type { Redis } from 'ioredis';
-import { eq, and } from 'drizzle-orm';
-import { getDb, courses, modules } from '@autodidact/db';
+import { eq, getDb, courses, modules } from '@autodidact/db';
 import type { IQueueProvider } from '@autodidact/providers';
 import type { CourseGenerationJobData, ModuleBlueprint } from '@autodidact/types';
 import type { Logger } from '@autodidact/observability';
@@ -34,7 +33,6 @@ export function createCourseGenerationWorker(
         moduleCount,
       });
 
-      // Write all modules and update course in a single transaction
       await db.transaction(async (tx) => {
         await tx
           .update(courses)
@@ -62,23 +60,15 @@ export function createCourseGenerationWorker(
         await tx.insert(modules).values(moduleRows);
       });
 
-      // Enqueue embedding generation
       await queueProvider.enqueue(
         QUEUES.EMBEDDING,
         JOB_NAMES.GENERATE_EMBEDDING,
         { courseId, topic },
-        { attempts: 3, backoffDelay: 5000 },
+        { attempts: 3, backoff: { type: 'exponential', delay: 5000 } },
       );
 
       logger.info({ courseId }, 'Course generation complete');
     },
-    {
-      connection,
-      concurrency: 3,
-      defaultJobOptions: {
-        attempts: 3,
-        backoff: { type: 'exponential', delay: 5000 },
-      },
-    },
+    { connection, concurrency: 3 },
   );
 }

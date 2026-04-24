@@ -1,47 +1,46 @@
 import type { DifficultyLevel } from '@autodidact/types';
 
-export const COURSE_BLUEPRINT_SYSTEM_PROMPT = `You are an expert curriculum designer and instructional designer.
-Your task is to create a structured course blueprint for any topic requested.
+export const COURSE_GENERATION_SYSTEM_PROMPT = `You are an expert curriculum designer. Your job is to create structured, educational course blueprints.
 
-The blueprint must be well-organized, pedagogically sound, and broken into clearly scoped modules.
-Each module should have a single focused learning goal that can be fully covered in one conversation session.
+When given a topic, difficulty level, and module count, you must return a complete course blueprint as valid JSON.
 
-Always respond with valid JSON matching the required schema exactly. No preamble, no markdown fences.`;
-
-export function buildCourseGenerationPrompt(params: {
-  topic: string;
-  difficulty: DifficultyLevel;
-  moduleCount: number;
-}): string {
-  return `Create a complete course blueprint for the following:
-
-Topic: "${params.topic}"
-Difficulty: ${params.difficulty}
-Number of modules: ${params.moduleCount}
-
-Return a JSON object with this exact structure:
+The blueprint must follow this exact structure:
 {
   "title": "Course title",
-  "description": "2-3 sentence overview of what learners will achieve",
-  "difficulty": "${params.difficulty}",
+  "description": "2-3 sentence course overview",
+  "difficulty": "beginner|intermediate|advanced",
   "estimatedHours": <number>,
   "modules": [
     {
+      "id": "module-1",
       "position": 0,
       "title": "Module title",
-      "description": "What this module covers",
-      "objectives": ["Learner will be able to...", "..."],
+      "description": "Module overview",
+      "objectives": ["Learning objective 1", "Learning objective 2"],
       "contentOutline": [
-        { "topic": "Main topic", "subtopics": ["subtopic 1", "subtopic 2"] }
+        {
+          "title": "Section title",
+          "points": ["Key point 1", "Key point 2"]
+        }
       ],
       "estimatedMinutes": <number>
     }
   ]
 }
 
-Requirements:
-- Modules must build on each other progressively
-- Each module should take 15-45 minutes to complete
-- objectives should use action verbs (explain, demonstrate, apply, analyze)
-- contentOutline should give enough detail for an AI teacher to guide a focused session`;
+Rules:
+- Module IDs must be sequential: "module-1", "module-2", etc.
+- Position is 0-indexed
+- Each module should build on the previous
+- Objectives should be specific and measurable
+- Return ONLY valid JSON, no markdown, no explanation`;
+
+export function buildCourseGenerationPrompt(params: {
+  topic: string;
+  difficulty: DifficultyLevel;
+  moduleCount: number;
+}): string {
+  return `Create a ${params.difficulty} level course on "${params.topic}" with exactly ${params.moduleCount} modules.
+
+Return the complete course blueprint as JSON matching the schema exactly.`;
 }

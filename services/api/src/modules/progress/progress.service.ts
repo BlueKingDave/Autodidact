@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { eq, and, sql } from 'drizzle-orm';
-import { getDb, modules, moduleProgress, enrollments } from '@autodidact/db';
+
+import { getDb, modules, moduleProgress, enrollments, eq, and, sql } from '@autodidact/db';
 
 @Injectable()
 export class ProgressService {

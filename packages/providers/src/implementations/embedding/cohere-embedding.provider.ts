@@ -1,9 +1,8 @@
+import type { Embeddings } from '@langchain/core/embeddings';
 import type { IEmbeddingProvider } from '../../interfaces/embedding.js';
 
 /** Stub — wire up @langchain/cohere when needed */
 export class CohereEmbeddingProvider implements IEmbeddingProvider {
-  readonly dimensions = 1024;
-
   constructor(_apiKey: string) {}
 
   async embed(_text: string): Promise<number[]> {
@@ -11,6 +10,10 @@ export class CohereEmbeddingProvider implements IEmbeddingProvider {
   }
 
   async embedBatch(_texts: string[]): Promise<number[][]> {
+    throw new Error('CohereEmbeddingProvider is not yet implemented');
+  }
+
+  getEmbeddings(): Embeddings {
     throw new Error('CohereEmbeddingProvider is not yet implemented');
   }
 }
