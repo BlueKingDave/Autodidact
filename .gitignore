@@ -52,3 +52,10 @@ infra/**/terraform.tfvars
 
 # EAS / Expo
 .expo-shared/
+
+# GitHub Actions workflows — the GitHub App token used by Claude Code lacks the
+# `workflows` permission scope required to push these files. They live on disk
+# at .github/workflows/ and must be pushed manually using a personal access token
+# with the `workflow` scope:
+#   git add .github/workflows/ && git push
+.github/
