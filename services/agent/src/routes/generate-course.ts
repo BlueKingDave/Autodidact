@@ -1,5 +1,5 @@
 import type { FastifyInstance } from 'fastify';
-import { z } from 'zod';
+import { z, ZodError } from 'zod';
 import type { ILLMProvider } from '@autodidact/providers';
 import { buildCourseGenerationGraph } from '../graphs/course-generation/graph.js';
 import type { DifficultyLevel } from '@autodidact/types';
@@ -18,7 +18,15 @@ export async function registerGenerateCourseRoute(
   const graph = buildCourseGenerationGraph(llmProvider);
 
   app.post('/course/generate', async (request, reply) => {
-    const body = GenerateCourseBodySchema.parse(request.body);
+    let body: z.infer<typeof GenerateCourseBodySchema>;
+    try {
+      body = GenerateCourseBodySchema.parse(request.body);
+    } catch (err) {
+      if (err instanceof ZodError) {
+        return reply.status(400).send({ error: 'Validation error', issues: err.issues });
+      }
+      throw err;
+    }
 
     const result = await graph.invoke({
       topic: body.topic,

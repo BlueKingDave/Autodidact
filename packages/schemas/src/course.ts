@@ -8,7 +8,7 @@ export const ContentSectionSchema = z.object({
 });
 
 export const ModuleBlueprintSchema = z.object({
-  id: z.string(),
+  id: z.string().optional(),
   position: z.number().int().min(0),
   title: z.string().min(1),
   description: z.string().min(1),

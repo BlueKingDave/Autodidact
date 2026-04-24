@@ -7,6 +7,9 @@
   "scripts": {
     "build": "tsc --project tsconfig.build.json",
     "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
     "clean": "rm -rf dist"
   },
   "dependencies": {
@@ -23,7 +26,9 @@
     "@autodidact/config": "workspace:*",
     "@autodidact/types": "workspace:*",
     "@types/jsonwebtoken": "^9.0.7",
-    "typescript": "^5.6.3"
+    "@vitest/coverage-v8": "^2.1.0",
+    "typescript": "^5.6.3",
+    "vitest": "^2.1.0"
   },
   "exports": {
     ".": {
