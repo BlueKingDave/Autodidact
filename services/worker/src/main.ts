@@ -1,4 +1,4 @@
-import IORedis from 'ioredis';
+import { Redis } from 'ioredis';
 import { createLogger, initTracer } from '@autodidact/observability';
 import { createQueueProvider } from '@autodidact/providers';
 import { AgentClient } from './services/agent.client.js';
@@ -13,9 +13,9 @@ async function start() {
   const redisUrl = process.env['REDIS_URL'] ?? 'redis://localhost:6379';
   const agentUrl = process.env['AGENT_SERVICE_URL'] ?? 'http://localhost:3001';
 
-  const redis = new IORedis(redisUrl, { maxRetriesPerRequest: null });
+  const redis = new Redis(redisUrl, { maxRetriesPerRequest: null });
   const agentClient = new AgentClient(agentUrl);
-  const queueProvider = await createQueueProvider();
+  const queueProvider = createQueueProvider();
 
   const courseWorker = createCourseGenerationWorker(redis, agentClient, queueProvider, logger);
   const embeddingWorker = createEmbeddingWorker(redis, agentClient, logger);

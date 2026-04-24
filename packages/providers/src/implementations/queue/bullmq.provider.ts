@@ -1,14 +1,14 @@
-import { Queue, QueueEvents } from 'bullmq';
-import type { Redis } from 'ioredis';
-import type { JobStatus } from '@autodidact/types';
+import { Queue } from 'bullmq';
+import IORedis from 'ioredis';
 import type { IQueueProvider, EnqueueOptions } from '../../interfaces/queue.js';
+import type { JobStatus } from '@autodidact/types';
 
 export class BullMQQueueProvider implements IQueueProvider {
+  private readonly connection: IORedis;
   private readonly queues = new Map<string, Queue>();
-  private readonly connection: Redis;
 
-  constructor(connection: Redis) {
-    this.connection = connection;
+  constructor(config: { redisUrl: string }) {
+    this.connection = new IORedis(config.redisUrl, { maxRetriesPerRequest: null });
   }
 
   private getQueue(name: string): Queue {
@@ -19,37 +19,40 @@ export class BullMQQueueProvider implements IQueueProvider {
   }
 
   async enqueue<T>(
-    queueName: string,
-    jobName: string,
+    queue: string,
+    name: string,
     data: T,
-    options?: EnqueueOptions,
+    opts?: EnqueueOptions,
   ): Promise<string> {
-    const queue = this.getQueue(queueName);
-    const job = await queue.add(jobName, data, {
-      attempts: options?.attempts ?? 3,
-      backoff: { type: 'exponential', delay: options?.backoffDelay ?? 5000 },
-      delay: options?.delay,
-      priority: options?.priority,
+    const q = this.getQueue(queue);
+    const job = await q.add(name, data, {
+      attempts: opts?.attempts ?? 3,
+      backoff: opts?.backoff ?? { type: 'exponential', delay: 5000 },
+      delay: opts?.delay,
+      jobId: opts?.jobId,
     });
-    return job.id!;
-  }
-
-  async getJobStatus(queueName: string, jobId: string): Promise<JobStatus> {
-    const queue = this.getQueue(queueName);
-    const job = await queue.getJob(jobId);
-    if (!job) return 'unknown';
-    const state = await job.getState();
-    const map: Record<string, JobStatus> = {
-      waiting: 'waiting',
-      active: 'active',
-      completed: 'completed',
-      failed: 'failed',
-      delayed: 'delayed',
-    };
-    return map[state] ?? 'unknown';
+    return job.id ?? '';
   }
 
   async close(): Promise<void> {
     await Promise.all([...this.queues.values()].map((q) => q.close()));
+    await this.connection.quit();
+  }
+
+  async getJobStatus(queue: string, jobId: string): Promise<JobStatus> {
+    const q = this.getQueue(queue);
+    const job = await q.getJob(jobId);
+    if (!job) return 'failed';
+    const state = await job.getState();
+    const map: Record<string, JobStatus> = {
+      waiting: 'pending',
+      active: 'active',
+      completed: 'completed',
+      failed: 'failed',
+      delayed: 'delayed',
+      paused: 'pending',
+      unknown: 'failed',
+    };
+    return map[state] ?? 'pending';
   }
 }

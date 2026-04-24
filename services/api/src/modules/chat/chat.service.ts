@@ -1,8 +1,8 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { eq } from 'drizzle-orm';
+
 import { Observable, Subject } from 'rxjs';
 import type { MessageEvent } from '@nestjs/common';
-import { getDb, chatSessions, modules } from '@autodidact/db';
+import { getDb, chatSessions, modules, eq } from '@autodidact/db';
 import { ProgressService } from '../progress/progress.service.js';
 import type { ChatMessage } from '@autodidact/types';
 import { v4 as uuidv4 } from 'uuid';
@@ -85,7 +85,7 @@ export class ChatService {
                 title: mod[0].title,
                 description: mod[0].description,
                 objectives: mod[0].objectives as string[],
-                contentOutline: mod[0].contentOutline as Array<{ topic: string; subtopics: string[] }>,
+                contentOutline: mod[0].contentOutline as unknown as Array<{ title: string; points: string[] }>,
                 estimatedMinutes: mod[0].estimatedMinutes,
               }
             : {},

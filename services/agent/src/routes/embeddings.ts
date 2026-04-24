@@ -1,13 +1,18 @@
 import type { FastifyInstance } from 'fastify';
+import { z } from 'zod';
 import type { IEmbeddingProvider } from '@autodidact/providers';
+
+const EmbedBodySchema = z.object({
+  text: z.string().min(1).max(5000),
+});
 
 export async function registerEmbeddingsRoute(
   app: FastifyInstance,
-  embeddings: IEmbeddingProvider,
+  embeddingProvider: IEmbeddingProvider,
 ) {
-  app.post<{ Body: { text: string } }>('/embeddings/text', async (request, reply) => {
-    const { text } = request.body;
-    const vector = await embeddings.embed(text);
-    return reply.send({ vector, dimensions: embeddings.dimensions });
+  app.post('/embeddings/text', async (request, reply) => {
+    const body = EmbedBodySchema.parse(request.body);
+    const embedding = await embeddingProvider.embed(body.text);
+    return reply.send({ embedding });
   });
 }

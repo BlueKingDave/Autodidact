@@ -14,8 +14,8 @@ import { AuthGuard } from '../auth/auth.guard.js';
 import { CurrentUser } from '../../common/decorators/current-user.decorator.js';
 import { ZodValidationPipe } from '../../common/pipes/zod-validation.pipe.js';
 import { ChatService } from './chat.service.js';
-import { SendMessageSchema, CreateSessionSchema } from '@autodidact/schemas';
-import type { SendMessage, CreateSession } from '@autodidact/schemas';
+import { SendMessageSchema, CreateChatSessionSchema } from '@autodidact/schemas';
+import type { SendMessage, CreateChatSession } from '@autodidact/schemas';
 import type { AuthUser } from '@autodidact/types';
 
 @Controller('chat')
@@ -28,8 +28,8 @@ export class ChatController {
   }
 
   @Post('sessions')
-  createSession(@Body(new ZodValidationPipe(CreateSessionSchema)) dto: CreateSession, @CurrentUser() user: AuthUser) {
-    return this.chatService.createSession(user.id, dto.moduleId, dto.courseId);
+  createSession(@Body(new ZodValidationPipe(CreateChatSessionSchema)) dto: CreateChatSession, @CurrentUser() user: AuthUser) {
+    return this.chatService.createSession(user.id, dto.moduleId, dto.moduleId);
   }
 
   @Get('sessions/:id')

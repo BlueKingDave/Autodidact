@@ -1,8 +1,14 @@
 {
-  "extends": "@autodidact/config/tsconfig/base",
+  "extends": "@autodidact/config/tsconfig.base.json",
   "compilerOptions": {
-    "outDir": "./dist",
-    "rootDir": "./src"
+    "noEmit": true,
+    "paths": {
+      "@autodidact/types": ["../../packages/types/src/index.ts"],
+      "@autodidact/schemas": ["../../packages/schemas/src/index.ts"],
+      "@autodidact/providers": ["../../packages/providers/src/index.ts"],
+      "@autodidact/db": ["../../packages/db/src/index.ts"],
+      "@autodidact/observability": ["../../packages/observability/src/index.ts"]
+    }
   },
   "include": ["src"]
 }

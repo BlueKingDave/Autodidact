@@ -1,54 +1,63 @@
-import { HumanMessage, AIMessage, SystemMessage } from '@langchain/core/messages';
-import { buildModuleSystemPrompt } from '@autodidact/prompts';
+import { HumanMessage, SystemMessage, AIMessage } from '@langchain/core/messages';
+import { buildModuleSystemPrompt, COMPLETION_EVALUATOR_SYSTEM_PROMPT, buildCompletionEvaluatorPrompt } from '@autodidact/prompts';
 import type { ILLMProvider } from '@autodidact/providers';
 import type { ModuleChatStateType } from './state.js';
 
-const COMPLETION_REGEX = /\[MODULE_COMPLETE:score=(\d+)\]/;
-
-export function makeTeacherNode(llm: ILLMProvider) {
+export function makeTeacherNode(llmProvider: ILLMProvider) {
   return async (state: ModuleChatStateType): Promise<Partial<ModuleChatStateType>> => {
-    const systemPrompt = buildModuleSystemPrompt(state.moduleBlueprint, {
-      completedModules: 0,
-      totalModules: 1,
-    });
+    const model = llmProvider.getModel();
+    const systemPrompt = buildModuleSystemPrompt(state.moduleBlueprint, state.courseProgress);
 
-    const systemMessage = new SystemMessage(systemPrompt);
-    const allMessages = [systemMessage, ...state.messages];
+    const response = await model.invoke([
+      new SystemMessage(systemPrompt),
+      ...state.messages,
+    ]);
 
-    const lcMessages = allMessages.map((m) => {
-      if (m._getType() === 'system') return new SystemMessage(m.content as string);
-      if (m._getType() === 'human') return new HumanMessage(m.content as string);
-      return new AIMessage(m.content as string);
-    });
+    const content = typeof response.content === 'string'
+      ? response.content
+      : JSON.stringify(response.content);
 
-    let fullResponse = '';
-    for await (const token of llm.chat(
-      lcMessages.map((m) => ({
-        role: m._getType() === 'system'
-          ? 'system'
-          : m._getType() === 'human'
-          ? 'user'
-          : 'assistant',
-        content: m.content as string,
-      })),
-    )) {
-      fullResponse += token;
-    }
-
-    const completionMatch = COMPLETION_REGEX.exec(fullResponse);
-    const cleanResponse = fullResponse.replace(COMPLETION_REGEX, '').trim();
-
+    // Check for completion signal
+    const completionMatch = content.match(/\[MODULE_COMPLETE:score=(\d+)\]/);
     if (completionMatch) {
-      const score = parseInt(completionMatch[1]!, 10);
+      const score = parseInt(completionMatch[1] ?? '0', 10);
+      const cleanContent = content.replace(/\[MODULE_COMPLETE:score=\d+\]/, '').trim();
       return {
-        messages: [new AIMessage(cleanResponse)],
+        messages: [new AIMessage(cleanContent)],
         completionSignaled: true,
         completionScore: score,
+        teachingPhase: 'evaluation',
       };
     }
 
     return {
-      messages: [new AIMessage(cleanResponse)],
+      messages: [new AIMessage(content)],
+      completionSignaled: false,
     };
+  };
+}
+
+export function makeEvaluationNode(llmProvider: ILLMProvider) {
+  return async (state: ModuleChatStateType): Promise<Partial<ModuleChatStateType>> => {
+    const model = llmProvider.getModel();
+
+    const response = await model.invoke([
+      new SystemMessage(COMPLETION_EVALUATOR_SYSTEM_PROMPT),
+      ...state.messages,
+      new HumanMessage(
+        buildCompletionEvaluatorPrompt(state.moduleBlueprint.objectives),
+      ),
+    ]);
+
+    const content = typeof response.content === 'string'
+      ? response.content
+      : JSON.stringify(response.content);
+
+    try {
+      const result = JSON.parse(content) as { completed: boolean; score: number; feedback: string };
+      return { completionScore: result.score };
+    } catch {
+      return { completionScore: state.completionScore ?? 75 };
+    }
   };
 }

@@ -1,46 +1,21 @@
-import type { ChatMessage, ModuleBlueprint } from '@autodidact/types';
+export const COMPLETION_EVALUATOR_SYSTEM_PROMPT = `You are an educational assessment AI. Your job is to evaluate whether a student has demonstrated sufficient understanding of a module's learning objectives based on their conversation history.
 
-export interface CompletionEvaluation {
-  completed: boolean;
-  score: number;
-  feedback: string;
-}
-
-export function buildCompletionEvaluatorPrompt(
-  module: ModuleBlueprint,
-  messages: ChatMessage[],
-): string {
-  const transcript = messages
-    .filter((m) => m.role !== 'system')
-    .map((m) => `${m.role.toUpperCase()}: ${m.content}`)
-    .join('\n\n');
-
-  const objectives = module.objectives.map((o) => `- ${o}`).join('\n');
-
-  return `You are evaluating whether a learner has successfully completed a learning module.
-
-## Module: ${module.title}
-## Objectives:
-${objectives}
-
-## Conversation Transcript:
-${transcript}
-
-## Your Task
-Evaluate whether the learner demonstrated sufficient understanding of the module objectives based on the conversation.
-
-Respond with a JSON object:
+Analyze the conversation and return a JSON object with this exact structure:
 {
-  "completed": <true|false>,
+  "completed": true|false,
   "score": <0-100>,
-  "feedback": "Brief feedback for the learner (1-2 sentences)"
+  "feedback": "Brief feedback message for the student"
 }
 
 Scoring guide:
-- 90-100: Excellent, clear mastery demonstrated
-- 75-89: Good understanding with minor gaps
-- 60-74: Basic understanding, could benefit from review
-- 0-59: Insufficient engagement or understanding
+- 90-100: Excellent understanding, can explain concepts clearly
+- 70-89: Good understanding, minor gaps
+- 50-69: Partial understanding, some misconceptions
+- Below 50: Insufficient understanding
 
-Only mark completed=true if score >= 60.`;
+Return ONLY valid JSON.`;
+
+export function buildCompletionEvaluatorPrompt(objectives: string[]): string {
+  const objectivesList = objectives.map((o, i) => `${i + 1}. ${o}`).join('\n');
+  return `Evaluate whether the student has demonstrated understanding of these objectives:\n\n${objectivesList}\n\nAnalyze the conversation above and return your assessment as JSON.`;
 }

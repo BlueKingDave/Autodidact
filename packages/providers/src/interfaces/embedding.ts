@@ -1,5 +1,7 @@
+import type { Embeddings } from '@langchain/core/embeddings';
+
 export interface IEmbeddingProvider {
   embed(text: string): Promise<number[]>;
   embedBatch(texts: string[]): Promise<number[][]>;
-  readonly dimensions: number;
+  getEmbeddings(): Embeddings;
 }

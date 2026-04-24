@@ -1,24 +1,18 @@
 import { StateGraph, START, END } from '@langchain/langgraph';
 import { CourseGenerationState } from './state.js';
-import { makeGenerateBlueprintNode, makeValidateBlueprintNode } from './nodes.js';
+import { makeGenerateBlueprintNode } from './nodes.js';
 import type { ILLMProvider } from '@autodidact/providers';
 
-export function buildCourseGenerationGraph(llm: ILLMProvider) {
-  const generateBlueprint = makeGenerateBlueprintNode(llm);
-  const validateBlueprint = makeValidateBlueprintNode(llm);
+export function buildCourseGenerationGraph(llmProvider: ILLMProvider) {
+  const generateBlueprint = makeGenerateBlueprintNode(llmProvider);
 
   const graph = new StateGraph(CourseGenerationState)
-    .addNode('generate', generateBlueprint)
-    .addNode('validate', validateBlueprint)
-    .addEdge(START, 'generate')
-    .addEdge('generate', 'validate')
-    .addConditionalEdges('validate', (state) => {
-      if (state.blueprint) return 'done';
-      if (state.retryCount < 3) return 'retry';
-      return 'done';
-    }, {
-      done: END,
-      retry: 'generate',
+    .addNode('generateBlueprint', generateBlueprint)
+    .addEdge(START, 'generateBlueprint')
+    .addConditionalEdges('generateBlueprint', (state) => {
+      if (state.blueprint) return END;
+      if (state.retryCount < 3) return 'generateBlueprint';
+      return END;
     });
 
   return graph.compile();

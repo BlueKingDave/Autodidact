@@ -1,25 +1,37 @@
 import type { FastifyInstance } from 'fastify';
+import { z } from 'zod';
 import { HumanMessage } from '@langchain/core/messages';
+import type { ILLMProvider, ICheckpointerProvider } from '@autodidact/providers';
+import { buildModuleChatGraph } from '../graphs/module-chat/graph.js';
 import type { ModuleBlueprint } from '@autodidact/types';
-import type { buildModuleChatGraph } from '../graphs/module-chat/graph.js';
+import type { CourseProgressContext } from '../graphs/module-chat/state.js';
 
-type ChatGraph = ReturnType<typeof buildModuleChatGraph>;
+const ModuleChatBodySchema = z.object({
+  sessionId: z.string().uuid(),
+  message: z.string().min(1).max(4000),
+  moduleBlueprint: z.unknown(),
+  courseProgress: z.object({
+    courseTitle: z.string(),
+    completedModuleCount: z.number(),
+    totalModuleCount: z.number(),
+  }),
+  isFirstMessage: z.boolean().optional().default(false),
+});
 
-interface StreamBody {
-  sessionId: string;
-  userId: string;
-  message: string;
-  moduleBlueprint: ModuleBlueprint;
-}
+export async function registerModuleChatRoute(
+  app: FastifyInstance,
+  llmProvider: ILLMProvider,
+  checkpointerProvider: ICheckpointerProvider,
+) {
+  const graph = buildModuleChatGraph(llmProvider, checkpointerProvider);
 
-export async function registerModuleChatRoute(app: FastifyInstance, graph: ChatGraph) {
-  app.post<{ Body: StreamBody }>('/module-chat/stream', async (request, reply) => {
-    const { sessionId, userId, message, moduleBlueprint } = request.body;
+  app.post('/module-chat/stream', async (request, reply) => {
+    const body = ModuleChatBodySchema.parse(request.body);
 
     reply.raw.setHeader('Content-Type', 'text/event-stream');
     reply.raw.setHeader('Cache-Control', 'no-cache');
-    reply.raw.setHeader('X-Accel-Buffering', 'no');
     reply.raw.setHeader('Connection', 'keep-alive');
+    reply.raw.setHeader('X-Accel-Buffering', 'no');
     reply.raw.flushHeaders();
 
     const sendEvent = (data: object) => {
@@ -27,40 +39,44 @@ export async function registerModuleChatRoute(app: FastifyInstance, graph: ChatG
     };
 
     try {
-      const stream = await graph.stream(
-        {
-          messages: [new HumanMessage(message)],
-          moduleBlueprint,
-          userId,
-          teachingPhase: 'introduction' as const,
-          completionSignaled: false,
-          completionScore: null,
-        },
-        {
-          configurable: { thread_id: sessionId },
-          streamMode: 'messages',
-        },
-      );
+      const config = { configurable: { thread_id: body.sessionId } };
 
-      for await (const [chunk] of stream) {
-        if (chunk && typeof chunk === 'object' && 'content' in chunk) {
-          const content = chunk.content;
-          if (typeof content === 'string' && content) {
-            sendEvent({ type: 'token', content });
-          }
+      const inputState: Record<string, unknown> = {
+        messages: [new HumanMessage(body.message)],
+        moduleBlueprint: body.moduleBlueprint as ModuleBlueprint,
+        courseProgress: body.courseProgress as CourseProgressContext,
+        completionSignaled: false,
+        completionScore: null,
+        teachingPhase: 'teaching',
+      };
+
+      // Stream using LangGraph's stream method
+      const stream = await graph.stream(inputState, {
+        ...config,
+        streamMode: 'messages',
+      });
+
+      for await (const [message, _meta] of stream) {
+        if (message?.content) {
+          const content = typeof message.content === 'string'
+            ? message.content
+            : JSON.stringify(message.content);
+          sendEvent({ type: 'token', content });
         }
       }
 
-      // Signal stream completion — client checks for completionScore
-      const state = await graph.getState({ configurable: { thread_id: sessionId } });
-      if (state.values.completionSignaled) {
-        sendEvent({ type: 'complete', score: state.values.completionScore });
-      } else {
-        sendEvent({ type: 'complete' });
+      // Get final state to check for completion
+      const finalState = await graph.getState(config);
+      if (finalState.values.completionSignaled) {
+        sendEvent({
+          type: 'module_complete',
+          score: finalState.values.completionScore,
+        });
       }
-    } catch (err) {
-      const message = err instanceof Error ? err.message : 'Unknown error';
-      sendEvent({ type: 'error', error: message });
+
+      sendEvent({ type: 'complete' });
+    } catch (error) {
+      sendEvent({ type: 'error', error: String(error) });
     } finally {
       reply.raw.end();
     }
