@@ -1,0 +1,29 @@
+{
+  "name": "@autodidact/agent",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "main": "./dist/main.js",
+  "scripts": {
+    "build": "tsc",
+    "dev": "node --watch --env-file=../../.env dist/main.js",
+    "start": "node dist/main.js",
+    "typecheck": "tsc --noEmit",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "@autodidact/observability": "workspace:*",
+    "@autodidact/prompts": "workspace:*",
+    "@autodidact/providers": "workspace:*",
+    "@autodidact/schemas": "workspace:*",
+    "@autodidact/types": "workspace:*",
+    "@langchain/core": "^0.3.0",
+    "@langchain/langgraph": "^0.2.0",
+    "fastify": "^4.28.0"
+  },
+  "devDependencies": {
+    "@autodidact/config": "workspace:*",
+    "@types/node": "^22.0.0",
+    "typescript": "^5.5.4"
+  }
+}
