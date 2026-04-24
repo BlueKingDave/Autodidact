@@ -7,6 +7,9 @@
     "dev": "node --watch --env-file=../../.env dist/main.js",
     "start": "node dist/main.js",
     "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
     "clean": "rm -rf dist"
   },
   "dependencies": {
@@ -28,9 +31,18 @@
   },
   "devDependencies": {
     "@autodidact/config": "workspace:*",
+    "@nestjs/testing": "^10.4.0",
+    "@testcontainers/postgresql": "^10.13.0",
     "@types/express": "^4.17.21",
     "@types/node": "^22.0.0",
+    "@types/supertest": "^6.0.0",
     "@types/uuid": "^9.0.0",
-    "typescript": "^5.5.4"
+    "@vitest/coverage-v8": "^2.1.0",
+    "drizzle-orm": "^0.38.0",
+    "pg": "^8.13.0",
+    "supertest": "^7.0.0",
+    "testcontainers": "^10.13.0",
+    "typescript": "^5.5.4",
+    "vitest": "^2.1.0"
   }
 }

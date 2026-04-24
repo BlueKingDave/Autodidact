@@ -2,9 +2,15 @@
   "name": "@autodidact/config",
   "version": "0.1.0",
   "private": true,
+  "devDependencies": {
+    "vite-tsconfig-paths": "^4.3.2",
+    "vitest": "^2.1.0"
+  },
   "exports": {
     "./tsconfig.base.json": "./tsconfig.base.json",
     "./tsconfig.react-native.json": "./tsconfig.react-native.json",
-    "./prettier": "./prettier.config.mjs"
+    "./prettier": "./prettier.config.mjs",
+    "./vitest.base": "./vitest.base.ts",
+    "./test-utils": "./src/test-utils/index.ts"
   }
 }

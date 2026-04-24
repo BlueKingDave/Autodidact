@@ -5,7 +5,7 @@ export function createLogger(service: string) {
 
   return pino({
     name: service,
-    level: process.env['LOG_LEVEL'] ?? 'info',
+    level: process.env['LOG_LEVEL'] || 'info',
     ...(isDev
       ? {
           transport: {

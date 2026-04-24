@@ -8,6 +8,9 @@
     "dev": "node --watch --env-file=../../.env dist/main.js",
     "start": "node dist/main.js",
     "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
     "clean": "rm -rf dist"
   },
   "dependencies": {
@@ -21,6 +24,8 @@
   "devDependencies": {
     "@autodidact/config": "workspace:*",
     "@types/node": "^22.0.0",
-    "typescript": "^5.5.4"
+    "@vitest/coverage-v8": "^2.1.0",
+    "typescript": "^5.5.4",
+    "vitest": "^2.1.0"
   }
 }

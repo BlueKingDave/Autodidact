@@ -1,5 +1,5 @@
 import type { FastifyInstance } from 'fastify';
-import { z } from 'zod';
+import { z, ZodError } from 'zod';
 import type { IEmbeddingProvider } from '@autodidact/providers';
 
 const EmbedBodySchema = z.object({
@@ -11,7 +11,15 @@ export async function registerEmbeddingsRoute(
   embeddingProvider: IEmbeddingProvider,
 ) {
   app.post('/embeddings/text', async (request, reply) => {
-    const body = EmbedBodySchema.parse(request.body);
+    let body: z.infer<typeof EmbedBodySchema>;
+    try {
+      body = EmbedBodySchema.parse(request.body);
+    } catch (err) {
+      if (err instanceof ZodError) {
+        return reply.status(400).send({ error: 'Validation error', issues: err.issues });
+      }
+      throw err;
+    }
     const embedding = await embeddingProvider.embed(body.text);
     return reply.send({ embedding });
   });

@@ -46,6 +46,7 @@ CREATE TABLE modules (
   objectives        JSONB NOT NULL,
   content_outline   JSONB NOT NULL,
   estimated_minutes INTEGER NOT NULL,
+  status            module_status NOT NULL DEFAULT 'locked',
   created_at        TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
