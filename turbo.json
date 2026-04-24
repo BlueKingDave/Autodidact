@@ -1,6 +1,5 @@
 {
   "$schema": "https://turbo.build/schema.json",
-  "ui": "tui",
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
@@ -10,25 +9,14 @@
       "cache": false,
       "persistent": true
     },
-    "lint": {
-      "outputs": []
-    },
+    "lint": {},
     "typecheck": {
-      "dependsOn": ["^build"],
-      "outputs": []
+      "dependsOn": ["^build"]
     },
     "test": {
-      "dependsOn": ["^build"],
-      "outputs": ["coverage/**"]
+      "dependsOn": ["^build"]
     },
     "clean": {
-      "cache": false
-    },
-    "db:generate": {
-      "cache": false,
-      "outputs": ["migrations/**"]
-    },
-    "db:migrate": {
       "cache": false
     }
   }

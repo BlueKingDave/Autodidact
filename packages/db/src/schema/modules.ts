@@ -1,20 +1,7 @@
-import {
-  pgTable,
-  uuid,
-  text,
-  timestamp,
-  integer,
-  jsonb,
-  pgEnum,
-} from 'drizzle-orm/pg-core';
+import { pgTable, uuid, text, timestamp, integer, jsonb } from 'drizzle-orm/pg-core';
 import { courses } from './courses.js';
-
-export const moduleStatusEnum = pgEnum('module_status', [
-  'locked',
-  'available',
-  'in_progress',
-  'completed',
-]);
+import { moduleStatusEnum } from './enums.js';
+import type { ContentSection } from '@autodidact/types';
 
 export const modules = pgTable('modules', {
   id: uuid('id').primaryKey().defaultRandom(),
@@ -25,10 +12,8 @@ export const modules = pgTable('modules', {
   title: text('title').notNull(),
   description: text('description').notNull(),
   objectives: jsonb('objectives').notNull().$type<string[]>(),
-  contentOutline: jsonb('content_outline').notNull().$type<Array<{ topic: string; subtopics: string[] }>>(),
+  contentOutline: jsonb('content_outline').notNull().$type<ContentSection[]>(),
   estimatedMinutes: integer('estimated_minutes').notNull(),
+  status: moduleStatusEnum('status').notNull().default('locked'),
   createdAt: timestamp('created_at').defaultNow().notNull(),
 });
-
-export type Module = typeof modules.$inferSelect;
-export type NewModule = typeof modules.$inferInsert;

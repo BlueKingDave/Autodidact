@@ -1,9 +1,9 @@
 /** @type {import('prettier').Config} */
-export default {
+const config = {
   singleQuote: true,
   semi: true,
   printWidth: 100,
-  trailingComma: "all",
   tabWidth: 2,
-  useTabs: false,
+  trailingComma: 'all',
 };
+export default config;

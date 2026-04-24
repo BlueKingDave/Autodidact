@@ -1,3 +1,4 @@
+export * from './enums.js';
 export * from './users.js';
 export * from './courses.js';
 export * from './modules.js';

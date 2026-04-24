@@ -2,7 +2,7 @@ import { pgTable, uuid, timestamp, integer, uniqueIndex } from 'drizzle-orm/pg-c
 import { users } from './users.js';
 import { modules } from './modules.js';
 import { courses } from './courses.js';
-import { moduleStatusEnum } from './modules.js';
+import { moduleStatusEnum } from './enums.js';
 
 export const moduleProgress = pgTable(
   'module_progress',
@@ -23,10 +23,5 @@ export const moduleProgress = pgTable(
     chatSessionId: uuid('chat_session_id'),
     completionScore: integer('completion_score'),
   },
-  (t) => ({
-    uniq: uniqueIndex('module_progress_user_module_idx').on(t.userId, t.moduleId),
-  }),
+  (t) => [uniqueIndex('module_progress_user_module_idx').on(t.userId, t.moduleId)],
 );
-
-export type ModuleProgress = typeof moduleProgress.$inferSelect;
-export type NewModuleProgress = typeof moduleProgress.$inferInsert;

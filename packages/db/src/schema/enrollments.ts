@@ -16,10 +16,5 @@ export const enrollments = pgTable(
     completedAt: timestamp('completed_at'),
     lastAccessedAt: timestamp('last_accessed_at').defaultNow(),
   },
-  (t) => ({
-    uniq: uniqueIndex('enrollments_user_course_idx').on(t.userId, t.courseId),
-  }),
+  (t) => [uniqueIndex('enrollments_user_course_idx').on(t.userId, t.courseId)],
 );
-
-export type Enrollment = typeof enrollments.$inferSelect;
-export type NewEnrollment = typeof enrollments.$inferInsert;

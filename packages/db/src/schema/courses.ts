@@ -1,46 +1,8 @@
-import {
-  pgTable,
-  uuid,
-  text,
-  timestamp,
-  integer,
-  jsonb,
-  boolean,
-  pgEnum,
-} from 'drizzle-orm/pg-core';
-import { customType } from 'drizzle-orm/pg-core';
+import { pgTable, uuid, text, timestamp, boolean, integer, jsonb } from 'drizzle-orm/pg-core';
+import { courseStatusEnum, difficultyEnum } from './enums.js';
 import { users } from './users.js';
-
-export const courseStatusEnum = pgEnum('course_status', [
-  'pending',
-  'generating',
-  'ready',
-  'failed',
-]);
-
-export const difficultyEnum = pgEnum('difficulty_level', [
-  'beginner',
-  'intermediate',
-  'advanced',
-]);
-
-// pgvector custom type
-const vector = customType<{ data: number[]; driverData: string }>({
-  dataType(config) {
-    const dims = (config as { dimensions?: number })?.dimensions ?? 1536;
-    return `vector(${dims})`;
-  },
-  toDriver(value: number[]): string {
-    return `[${value.join(',')}]`;
-  },
-  fromDriver(value: string): number[] {
-    return value
-      .replace('[', '')
-      .replace(']', '')
-      .split(',')
-      .map(Number);
-  },
-});
+import { vector } from '../vector.js';
+import type { CourseBlueprint } from '@autodidact/types';
 
 export const courses = pgTable('courses', {
   id: uuid('id').primaryKey().defaultRandom(),
@@ -51,13 +13,10 @@ export const courses = pgTable('courses', {
   difficulty: difficultyEnum('difficulty').notNull().default('beginner'),
   estimatedHours: integer('estimated_hours'),
   status: courseStatusEnum('status').notNull().default('pending'),
-  blueprint: jsonb('blueprint'),
+  blueprint: jsonb('blueprint').$type<CourseBlueprint>(),
   topicEmbedding: vector('topic_embedding', { dimensions: 1536 }),
   isPublic: boolean('is_public').notNull().default(true),
   generatedBy: uuid('generated_by').references(() => users.id),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });
-
-export type Course = typeof courses.$inferSelect;
-export type NewCourse = typeof courses.$inferInsert;

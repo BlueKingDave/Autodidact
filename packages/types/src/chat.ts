@@ -8,10 +8,10 @@ export interface ChatMessage {
 }
 
 export interface StreamChunk {
-  type: 'token' | 'complete' | 'error' | 'phase_change';
+  type: 'token' | 'complete' | 'error' | 'module_complete';
   content?: string;
   score?: number;
-  phase?: string;
+  feedback?: string;
   error?: string;
 }
 

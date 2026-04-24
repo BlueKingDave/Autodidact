@@ -2,31 +2,10 @@ import { drizzle } from 'drizzle-orm/node-postgres';
 import { Pool } from 'pg';
 import * as schema from './schema/index.js';
 
-let _db: ReturnType<typeof drizzle> | null = null;
-let _pool: Pool | null = null;
+const pool = new Pool({
+  connectionString: process.env['DATABASE_URL'],
+  max: 10,
+});
 
-export function getDb() {
-  if (!_db) {
-    const url = process.env['DATABASE_URL'];
-    if (!url) throw new Error('DATABASE_URL is not set');
-
-    _pool = new Pool({ connectionString: url });
-    _db = drizzle(_pool, { schema });
-  }
-  return _db;
-}
-
-export function getPool(): Pool {
-  getDb();
-  return _pool!;
-}
-
-export async function closeDb(): Promise<void> {
-  if (_pool) {
-    await _pool.end();
-    _pool = null;
-    _db = null;
-  }
-}
-
-export { schema };
+export const db = drizzle(pool, { schema });
+export type DB = typeof db;

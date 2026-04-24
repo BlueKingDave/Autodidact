@@ -9,28 +9,22 @@ export interface UserProfile {
   createdAt: string;
 }
 
-export interface ModuleProgressEntry {
+export interface AuthUser {
+  supabaseId: string;
+  email: string;
+}
+
+export interface ModuleProgressItem {
   moduleId: string;
-  moduleTitle: string;
-  position: number;
   status: ModuleStatus;
-  completionScore: number | null;
   startedAt: string | null;
   completedAt: string | null;
+  completionScore: number | null;
 }
 
 export interface UserProgress {
   courseId: string;
   enrolledAt: string;
   completedAt: string | null;
-  lastAccessedAt: string | null;
-  modules: ModuleProgressEntry[];
-  completedCount: number;
-  totalCount: number;
-}
-
-export interface AuthUser {
-  id: string;
-  supabaseId: string;
-  email: string;
+  modules: ModuleProgressItem[];
 }
