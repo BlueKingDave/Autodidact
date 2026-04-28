@@ -3,7 +3,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useCourse } from '../../../../src/api/courses';
 import { useProgress } from '../../../../src/api/progress';
 import { colors } from '../../../../src/constants/colors';
-import type { ModuleProgressEntry } from '@autodidact/types';
+import type { ModuleBlueprint } from '@autodidact/types';
 
 export default function CourseDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -43,9 +43,9 @@ export default function CourseDetailScreen() {
           </View>
         </View>
       }
-      data={course.modules ?? []}
-      keyExtractor={(item: { id: string }) => item.id}
-      renderItem={({ item }: { item: { id: string; title: string; description: string; position: number } }) => {
+      data={(course.modules ?? []) as ModuleBlueprint[]}
+      keyExtractor={(item) => item.id}
+      renderItem={({ item }) => {
         const modProgress = progressMap.get(item.id);
         const status = modProgress?.status ?? 'locked';
         const isLocked = status === 'locked';
