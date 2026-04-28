@@ -50,6 +50,9 @@ infra/**/*.tfstate.backup
 infra/**/.terraform.lock.hcl
 infra/**/terraform.tfvars
 
+# Git worktrees
+.worktrees/
+
 # EAS / Expo
 .expo-shared/
 
