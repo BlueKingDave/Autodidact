@@ -1,11 +1,7 @@
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import { createClient } from '@supabase/supabase-js';
-import Constants from 'expo-constants';
-import { useAuthStore } from '../../src/stores/auth.store';
-import { colors } from '../../src/constants/colors';
-
-const extra = Constants.expoConfig?.extra as Record<string, string> | undefined;
-const supabase = createClient(extra?.['supabaseUrl'] ?? '', extra?.['supabaseAnonKey'] ?? '');
+import { useAuthStore } from '@/stores/auth.store';
+import { colors } from '@/constants/colors';
+import { supabase } from '@/lib/supabase';
 
 export default function ProfileScreen() {
   const { user, clearSession } = useAuthStore();
