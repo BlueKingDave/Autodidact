@@ -1,6 +1,8 @@
 {
   "extends": "@autodidact/config/tsconfig.react-native.json",
   "compilerOptions": {
+    "declaration": false,
+    "declarationMap": false,
     "paths": {
       "@/*": ["./src/*"]
     }
