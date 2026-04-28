@@ -108,7 +108,7 @@ export default function ModuleChatScreen() {
             onChangeText={setInput}
             multiline
             maxLength={4000}
-            disabled={isStreaming}
+            editable={!isStreaming}
           />
           <IconButton
             icon={<UpArrow />}

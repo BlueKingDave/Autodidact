@@ -29,13 +29,15 @@ type InputProps = GetProps<typeof StyledInput> & {
   label?: string;
   error?: string;
   helper?: string;
+  /** React Native TextInput editable prop — prevents keyboard from appearing when false */
+  editable?: boolean;
 };
 
-export function Input({ label, error, helper, ...props }: InputProps) {
+export function Input({ label, error, helper, editable, ...props }: InputProps) {
   return (
     <YStack gap="$1">
       {label && <AppText variant="label">{label}</AppText>}
-      <StyledInput hasError={!!error} {...props} />
+      <StyledInput hasError={!!error} {...(editable === false ? { disabled: true } : {})} {...props} />
       {error
         ? <AppText variant="error">{error}</AppText>
         : helper
