@@ -1,16 +1,18 @@
 import { Tabs } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { colors } from '../../src/constants/colors';
+import { useTheme } from 'tamagui';
 
 export default function AppLayout() {
+  const theme = useTheme();
+
   return (
     <Tabs
       screenOptions={{
-        headerStyle: { backgroundColor: colors.background },
-        headerTintColor: colors.text,
-        tabBarStyle: { backgroundColor: colors.surface, borderTopColor: colors.border },
-        tabBarActiveTintColor: colors.primary,
-        tabBarInactiveTintColor: colors.textDim,
+        headerStyle: { backgroundColor: theme.bg.get() },
+        headerTintColor: theme.text.get(),
+        tabBarStyle: { backgroundColor: theme.surface.get(), borderTopColor: theme.border.get() },
+        tabBarActiveTintColor: theme.primary.get(),
+        tabBarInactiveTintColor: theme.textMuted.get(),
       }}
     >
       <Tabs.Screen

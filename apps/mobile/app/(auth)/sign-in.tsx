@@ -1,20 +1,9 @@
 import { useState } from 'react';
-import {
-  View,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  StyleSheet,
-  ActivityIndicator,
-  Alert,
-} from 'react-native';
-import { createClient } from '@supabase/supabase-js';
-import Constants from 'expo-constants';
-import { useAuthStore } from '../../src/stores/auth.store';
-import { colors } from '../../src/constants/colors';
-
-const extra = Constants.expoConfig?.extra as Record<string, string> | undefined;
-const supabase = createClient(extra?.['supabaseUrl'] ?? '', extra?.['supabaseAnonKey'] ?? '');
+import { Alert } from 'react-native';
+import { YStack } from 'tamagui';
+import { useAuthStore } from '@/stores/auth.store';
+import { supabase } from '@/lib/supabase';
+import { Screen, Heading, AppText, Input, Button } from '@/components';
 
 export default function SignInScreen() {
   const [email, setEmail] = useState('');
@@ -34,64 +23,40 @@ export default function SignInScreen() {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Autodidact</Text>
-      <Text style={styles.subtitle}>Learn anything, one module at a time.</Text>
+    <Screen>
+      <YStack flex={1} justifyContent="center" gap="$4">
+        <YStack gap="$2" marginBottom="$6">
+          <Heading size="h1">Autodidact</Heading>
+          <AppText variant="muted" size="lg">Learn anything, one module at a time.</AppText>
+        </YStack>
 
-      <TextInput
-        style={styles.input}
-        placeholder="Email"
-        placeholderTextColor={colors.textDim}
-        value={email}
-        onChangeText={setEmail}
-        autoCapitalize="none"
-        keyboardType="email-address"
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Password"
-        placeholderTextColor={colors.textDim}
-        value={password}
-        onChangeText={setPassword}
-        secureTextEntry
-      />
+        <YStack gap="$3">
+          <Input
+            label="Email"
+            placeholder="you@example.com"
+            value={email}
+            onChangeText={setEmail}
+            autoCapitalize="none"
+            keyboardType="email-address"
+          />
+          <Input
+            label="Password"
+            placeholder="Password"
+            value={password}
+            onChangeText={setPassword}
+            secureTextEntry
+          />
+        </YStack>
 
-      <TouchableOpacity style={styles.button} onPress={handleSignIn} disabled={loading}>
-        {loading ? (
-          <ActivityIndicator color={colors.text} />
-        ) : (
-          <Text style={styles.buttonText}>Sign In</Text>
-        )}
-      </TouchableOpacity>
-    </View>
+        <Button
+          variant="primary"
+          size="lg"
+          loading={loading}
+          onPress={handleSignIn}
+        >
+          Sign In
+        </Button>
+      </YStack>
+    </Screen>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.background,
-    justifyContent: 'center',
-    padding: 24,
-  },
-  title: { fontSize: 32, fontWeight: '700', color: colors.text, marginBottom: 8 },
-  subtitle: { fontSize: 16, color: colors.textMuted, marginBottom: 40 },
-  input: {
-    backgroundColor: colors.surface,
-    borderRadius: 12,
-    padding: 16,
-    color: colors.text,
-    fontSize: 16,
-    marginBottom: 12,
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  button: {
-    backgroundColor: colors.primary,
-    borderRadius: 12,
-    padding: 16,
-    alignItems: 'center',
-    marginTop: 8,
-  },
-  buttonText: { color: colors.text, fontSize: 16, fontWeight: '600' },
-});

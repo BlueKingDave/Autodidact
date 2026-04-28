@@ -1,19 +1,14 @@
 import { useEffect } from 'react';
 import { Slot, useRouter, useSegments } from 'expo-router';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { createClient } from '@supabase/supabase-js';
-import Constants from 'expo-constants';
-import { useAuthStore } from '../src/stores/auth.store';
+import { TamaguiProvider } from 'tamagui';
+import { useAuthStore } from '@/stores/auth.store';
+import { supabase } from '@/lib/supabase';
+import config from '@/design/config';
 
 const queryClient = new QueryClient({
   defaultOptions: { queries: { retry: 1, staleTime: 30_000 } },
 });
-
-const extra = Constants.expoConfig?.extra as Record<string, string> | undefined;
-const supabase = createClient(
-  extra?.['supabaseUrl'] ?? '',
-  extra?.['supabaseAnonKey'] ?? '',
-);
 
 export default function RootLayout() {
   const { token, setToken, clearSession } = useAuthStore();
@@ -41,8 +36,10 @@ export default function RootLayout() {
   }, [token, segments, router]);
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <Slot />
-    </QueryClientProvider>
+    <TamaguiProvider config={config} defaultTheme="dark">
+      <QueryClientProvider client={queryClient}>
+        <Slot />
+      </QueryClientProvider>
+    </TamaguiProvider>
   );
 }
