@@ -1,7 +1,7 @@
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import { useAuthStore } from '@/stores/auth.store';
-import { colors } from '@/constants/colors';
+import { YStack } from 'tamagui';
 import { supabase } from '@/lib/supabase';
+import { useAuthStore } from '@/stores/auth.store';
+import { Screen, Card, AppText, Button } from '@/components';
 
 export default function ProfileScreen() {
   const { user, clearSession } = useAuthStore();
@@ -12,36 +12,19 @@ export default function ProfileScreen() {
   };
 
   return (
-    <View style={styles.container}>
-      <View style={styles.card}>
-        <Text style={styles.label}>Email</Text>
-        <Text style={styles.value}>{user?.email ?? '—'}</Text>
-      </View>
+    <Screen>
+      <YStack gap="$6" paddingTop="$4">
+        <Card variant="elevated">
+          <AppText variant="label">Email</AppText>
+          <YStack marginTop="$1">
+            <AppText variant="body" size="lg">{user?.email ?? '—'}</AppText>
+          </YStack>
+        </Card>
 
-      <TouchableOpacity style={styles.signOutBtn} onPress={handleSignOut}>
-        <Text style={styles.signOutText}>Sign Out</Text>
-      </TouchableOpacity>
-    </View>
+        <Button variant="danger" size="lg" onPress={handleSignOut}>
+          Sign Out
+        </Button>
+      </YStack>
+    </Screen>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.background, padding: 24 },
-  card: {
-    backgroundColor: colors.surface,
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 24,
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  label: { fontSize: 12, color: colors.textMuted, fontWeight: '600', marginBottom: 4, textTransform: 'uppercase' },
-  value: { fontSize: 16, color: colors.text },
-  signOutBtn: {
-    backgroundColor: colors.error,
-    borderRadius: 12,
-    padding: 16,
-    alignItems: 'center',
-  },
-  signOutText: { color: colors.text, fontSize: 16, fontWeight: '600' },
-});
