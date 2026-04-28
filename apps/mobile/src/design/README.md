@@ -6,10 +6,16 @@ as part of this migration.
 
 ## Dependency chain
 
-tokens → themes → typography → config
+```
+tokens → themes ↘
+                  config
+typography      ↗
+```
 
-Each layer depends only on the one before it. Never import config.ts from
-tokens, themes, or typography — that would create a circular dependency.
+`themes` and `typography` are independent — neither depends on the other.
+Both depend only on `tokens` (or nothing). `config` assembles them all.
+Never import `config.ts` from any other file in this folder — that creates
+a circular dependency.
 
 ## tokens.ts
 
