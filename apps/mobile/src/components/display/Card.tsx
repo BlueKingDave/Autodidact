@@ -21,6 +21,7 @@ const CardFrame = styled(YStack, {
         backgroundColor: 'transparent',
         borderWidth: 1,
         borderColor: '$border',
+        // borderStyle: 'dashed' omitted — not reliably supported in RN Tamagui
       },
     },
     pressable: {

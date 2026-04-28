@@ -9,8 +9,8 @@ type PositionBadgeProps = {
 export function PositionBadge({ position, completed }: PositionBadgeProps) {
   return (
     <XStack
-      width={32}
-      height={32}
+      width="$md"
+      height="$md"
       borderRadius="$full"
       backgroundColor={completed ? '$success' : '$surfaceHover'}
       alignItems="center"

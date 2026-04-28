@@ -4,7 +4,7 @@ import { AppText } from '../typography/AppText';
 const BadgeFrame = styled(XStack, {
   name: 'Badge',
   paddingHorizontal: '$2',
-  paddingVertical: 3,
+  paddingVertical: '$0.5',
   borderRadius: '$sm',
   alignSelf: 'flex-start',
 

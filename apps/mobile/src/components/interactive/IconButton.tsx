@@ -3,8 +3,8 @@ import { styled, XStack, Spinner } from 'tamagui';
 
 const IconButtonFrame = styled(XStack, {
   name: 'IconButton',
-  width: 40,
-  height: 40,
+  width: '$lg',
+  height: '$lg',
   borderRadius: '$full',
   alignItems: 'center',
   justifyContent: 'center',
