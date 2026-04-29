@@ -6,13 +6,15 @@ import { describe, it, expect, vi, afterEach } from 'vitest';
 // the relative imports in src/factory.ts.
 // ────────────────────────────────────────────────────────────────────────────
 
-const MockOpenAILLMProvider = vi.fn().mockImplementation(() => ({
-  getModel: vi.fn().mockReturnValue({}),
-  getModelName: vi.fn().mockReturnValue('gpt-4o'),
-}));
-const MockAnthropicLLMProvider = vi.fn().mockImplementation(() => ({
-  getModel: vi.fn().mockReturnValue({}),
-  getModelName: vi.fn().mockReturnValue('claude-3-5-sonnet'),
+const { MockOpenAILLMProvider, MockAnthropicLLMProvider } = vi.hoisted(() => ({
+  MockOpenAILLMProvider: vi.fn().mockImplementation(() => ({
+    getModel: vi.fn().mockReturnValue({}),
+    getModelName: vi.fn().mockReturnValue('gpt-4o'),
+  })),
+  MockAnthropicLLMProvider: vi.fn().mockImplementation(() => ({
+    getModel: vi.fn().mockReturnValue({}),
+    getModelName: vi.fn().mockReturnValue('claude-3-5-sonnet'),
+  })),
 }));
 
 vi.mock('../implementations/llm/openai.provider', () => ({ OpenAILLMProvider: MockOpenAILLMProvider }));
@@ -153,10 +155,7 @@ describe('createCheckpointer()', () => {
 
 describe('createAuthProvider()', () => {
   it('returns a provider with verifyToken()', () => {
-    const provider = createAuthProvider({
-      supabaseUrl: 'https://test.supabase.co',
-      supabaseServiceRoleKey: 'test-key',
-    });
+    const provider = createAuthProvider({ supabaseUrl: 'https://test.supabase.co' });
     expect(typeof provider.verifyToken).toBe('function');
   });
 });
