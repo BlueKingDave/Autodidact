@@ -53,7 +53,7 @@ export function createAuthProvider(config: ProviderConfig = {}): IAuthProvider {
   return new SupabaseAuthProvider({
     supabaseUrl: config.supabaseUrl ?? process.env['SUPABASE_URL'] ?? '',
     serviceRoleKey:
-      config.supabaseServiceRoleKey ?? process.env['SUPABASE_SERVICE_ROLE_KEY'] ?? '',
+      config.supabaseServiceRoleKey ?? process.env['SUPABASE_SECRET_KEY'] ?? '',
   });
 }
 

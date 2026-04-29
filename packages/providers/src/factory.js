@@ -34,7 +34,7 @@ function createAuthProvider(config = {}) {
     const { SupabaseAuthProvider } = require('./implementations/auth/supabase-auth.provider.js');
     return new SupabaseAuthProvider({
         supabaseUrl: config.supabaseUrl ?? process.env['SUPABASE_URL'] ?? '',
-        serviceRoleKey: config.supabaseServiceRoleKey ?? process.env['SUPABASE_SERVICE_ROLE_KEY'] ?? '',
+        serviceRoleKey: config.supabaseServiceRoleKey ?? process.env['SUPABASE_SECRET_KEY'] ?? '',
     });
 }
 function createCheckpointer(config = {}) {

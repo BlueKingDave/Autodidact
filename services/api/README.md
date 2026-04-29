@@ -122,7 +122,7 @@ pnpm --filter @autodidact/api test
 | `DATABASE_URL` | PostgreSQL connection string |
 | `SUPABASE_URL` | Supabase project URL |
 | `SUPABASE_JWT_SECRET` | JWT verification key |
-| `SUPABASE_SERVICE_ROLE_KEY` | Admin access key |
+| `SUPABASE_SECRET_KEY` | Admin access key |
 | `REDIS_URL` | Redis connection string |
 | `AGENT_SERVICE_URL` | Internal URL of Agent service |
 | `AUTH_PROVIDER` | `supabase` (default) |
