@@ -5,21 +5,21 @@ import { BullMQQueueProvider } from '../implementations/queue/bullmq.provider.js
 // Mock ioredis and bullmq before importing the provider under test
 // ────────────────────────────────────────────────────────────────────────────
 
-const mockQuit = vi.fn().mockResolvedValue(undefined);
+const { mockQuit, mockQueueAdd, mockQueueGetJob, mockQueueClose, MockQueue } = vi.hoisted(() => {
+  const mockQuit = vi.fn().mockResolvedValue(undefined);
+  const mockQueueAdd = vi.fn().mockImplementation(async () => ({ id: 'job-123' }));
+  const mockQueueGetJob = vi.fn(); // implementation set per-test in beforeEach
+  const mockQueueClose = vi.fn().mockResolvedValue(undefined);
+  const MockQueue = vi.fn().mockImplementation(() => ({
+    add: mockQueueAdd,
+    getJob: mockQueueGetJob,
+    close: mockQueueClose,
+  }));
+  return { mockQuit, mockQueueAdd, mockQueueGetJob, mockQueueClose, MockQueue };
+});
+
 vi.mock('ioredis', () => ({
   default: vi.fn().mockImplementation(() => ({ quit: mockQuit })),
-}));
-
-let mockJobGetState = vi.fn().mockResolvedValue('waiting');
-let mockJob: { id: string; getState: ReturnType<typeof vi.fn> } | null = null;
-
-const mockQueueAdd = vi.fn().mockImplementation(async () => ({ id: 'job-123' }));
-const mockQueueGetJob = vi.fn().mockImplementation(async () => mockJob);
-const mockQueueClose = vi.fn().mockResolvedValue(undefined);
-const MockQueue = vi.fn().mockImplementation(() => ({
-  add: mockQueueAdd,
-  getJob: mockQueueGetJob,
-  close: mockQueueClose,
 }));
 
 vi.mock('bullmq', () => ({ Queue: MockQueue }));
@@ -27,11 +27,15 @@ vi.mock('bullmq', () => ({ Queue: MockQueue }));
 // ────────────────────────────────────────────────────────────────────────────
 
 describe('BullMQQueueProvider', () => {
+  let mockJobGetState: ReturnType<typeof vi.fn>;
+  let mockJob: { id: string; getState: ReturnType<typeof vi.fn> } | null;
   let provider: InstanceType<typeof BullMQQueueProvider>;
 
   beforeEach(() => {
     vi.clearAllMocks();
+    mockJobGetState = vi.fn().mockResolvedValue('waiting');
     mockJob = { id: 'job-123', getState: mockJobGetState };
+    mockQueueGetJob.mockImplementation(async () => mockJob);
     provider = new BullMQQueueProvider({ redisUrl: 'redis://localhost:6379' });
   });
 
