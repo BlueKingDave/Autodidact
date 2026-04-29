@@ -21,7 +21,6 @@ export interface ProviderConfig {
   anthropicApiKey?: string;
   redisUrl?: string;
   supabaseUrl?: string;
-  supabaseServiceRoleKey?: string;
   databaseUrl?: string;
 }
 
@@ -52,8 +51,6 @@ export function createQueueProvider(config: ProviderConfig = {}): IQueueProvider
 export function createAuthProvider(config: ProviderConfig = {}): IAuthProvider {
   return new SupabaseAuthProvider({
     supabaseUrl: config.supabaseUrl ?? process.env['SUPABASE_URL'] ?? '',
-    serviceRoleKey:
-      config.supabaseServiceRoleKey ?? process.env['SUPABASE_SECRET_KEY'] ?? '',
   });
 }
 

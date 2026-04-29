@@ -1,25 +1,35 @@
-import { createClient } from '@supabase/supabase-js';
+import { createRemoteJWKSet, jwtVerify } from 'jose';
 import type { IAuthProvider } from '../../interfaces/auth.js';
 import type { AuthUser } from '@autodidact/types';
 
 export class SupabaseAuthProvider implements IAuthProvider {
-  private readonly client;
+  private readonly jwks: ReturnType<typeof createRemoteJWKSet>;
+  private readonly issuer: string;
 
-  constructor(config: { supabaseUrl: string; serviceRoleKey: string }) {
-    this.client = createClient(config.supabaseUrl, config.serviceRoleKey, {
-      auth: { autoRefreshToken: false, persistSession: false },
-    });
+  constructor(config: { supabaseUrl: string }) {
+    this.issuer = `${config.supabaseUrl}/auth/v1`;
+    this.jwks = createRemoteJWKSet(
+      new URL(`${config.supabaseUrl}/auth/v1/.well-known/jwks.json`),
+    );
   }
 
   async verifyToken(token: string): Promise<AuthUser> {
-    const { data, error } = await this.client.auth.getUser(token);
-    if (error || !data.user) {
+    let payload: Awaited<ReturnType<typeof jwtVerify>>['payload'];
+    try {
+      ({ payload } = await jwtVerify(token, this.jwks, {
+        issuer: this.issuer,
+        audience: 'authenticated',
+      }));
+    } catch {
       throw new Error('Invalid token');
     }
+    const sub = payload.sub;
+    if (!sub) throw new Error('Invalid token');
     return {
-      id: data.user.id,
-      supabaseId: data.user.id,
-      email: data.user.email ?? '',
+      id: sub,
+      supabaseId: sub,
+      email: typeof payload['email'] === 'string' ? payload['email'] : '',
+      role: typeof payload['role'] === 'string' ? payload['role'] : undefined,
     };
   }
 }

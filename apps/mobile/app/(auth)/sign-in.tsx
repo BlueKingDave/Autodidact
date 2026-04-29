@@ -9,7 +9,7 @@ export default function SignInScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
-  const setToken = useAuthStore((s) => s.setToken);
+  const setSession = useAuthStore((s) => s.setSession);
 
   const handleSignIn = async () => {
     setLoading(true);
@@ -19,7 +19,9 @@ export default function SignInScreen() {
       Alert.alert('Sign in failed', error.message);
       return;
     }
-    if (data.session?.access_token) setToken(data.session.access_token);
+    if (data.session?.access_token && data.session?.refresh_token) {
+      setSession(data.session.access_token, data.session.refresh_token);
+    }
   };
 
   return (
