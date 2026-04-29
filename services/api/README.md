@@ -121,7 +121,6 @@ pnpm --filter @autodidact/api test
 | `API_PORT` | HTTP port (default 3000) |
 | `DATABASE_URL` | PostgreSQL connection string |
 | `SUPABASE_URL` | Supabase project URL |
-| `SUPABASE_JWT_SECRET` | JWT verification key |
 | `SUPABASE_SECRET_KEY` | Admin access key |
 | `REDIS_URL` | Redis connection string |
 | `AGENT_SERVICE_URL` | Internal URL of Agent service |

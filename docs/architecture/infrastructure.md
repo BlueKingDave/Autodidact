@@ -74,7 +74,6 @@ Secrets are stored in **GCP Secret Manager** and injected as environment variabl
 | `DATABASE_URL` | api, worker, agent (prod) | PostgreSQL connection string |
 | `REDIS_URL` | api, worker | Redis connection string |
 | `SUPABASE_URL` | api, agent | Supabase project URL |
-| `SUPABASE_JWT_SECRET` | api | JWT verification key |
 | `SUPABASE_SECRET_KEY` | api, worker | Supabase admin access |
 | `OPENAI_API_KEY` | agent | OpenAI API key |
 | `ANTHROPIC_API_KEY` | agent | Anthropic API key (optional) |
