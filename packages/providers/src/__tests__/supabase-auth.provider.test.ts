@@ -1,4 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
+import { SupabaseAuthProvider } from '../implementations/auth/supabase-auth.provider.js';
 
 // ────────────────────────────────────────────────────────────────────────────
 // Mock @supabase/supabase-js
@@ -10,8 +11,6 @@ vi.mock('@supabase/supabase-js', () => ({
     auth: { getUser: mockGetUser },
   }),
 }));
-
-const { SupabaseAuthProvider } = await import('../implementations/auth/supabase-auth.provider.js');
 
 // ────────────────────────────────────────────────────────────────────────────
 

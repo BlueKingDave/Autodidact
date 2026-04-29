@@ -1,0 +1,109 @@
+<h2>Section 2 — Component Layer (revised)</h2>
+<p class="subtitle">Updated APIs for AppText, Button, Input, Card.</p>
+
+<div class="section">
+  <h3>AppText — replaces Body</h3>
+  <p>Variant sets semantic defaults (color + size + weight). Size and weight props override when needed.</p>
+  <pre style="background:#0f172a;color:#94a3b8;padding:14px;border-radius:8px;font-size:12px;line-height:1.8">// Variants (semantic defaults)
+variant="body"     → size=md, weight=regular, color=text
+variant="muted"    → size=md, weight=regular, color=textMuted
+variant="caption"  → size=sm, weight=regular, color=textMuted
+variant="label"    → size=xs, weight=semibold, color=textMuted, uppercase
+variant="error"    → size=sm, weight=regular, color=danger
+
+// Override when needed
+&lt;AppText variant="muted" size="lg" weight="semibold"&gt;
+&lt;AppText variant="body" size="xl"&gt;
+
+// Heading kept separate (h1/h2 — structural, not inline)
+&lt;Heading size="h1"&gt;What do you want to learn?&lt;/Heading&gt;
+&lt;Heading size="h2"&gt;My Courses&lt;/Heading&gt;</pre>
+</div>
+
+<div class="section">
+  <h3>Button — with size</h3>
+  <pre style="background:#0f172a;color:#94a3b8;padding:14px;border-radius:8px;font-size:12px;line-height:1.8">variant="primary"   → bg=primary, text=white            (Start Learning, Sign In)
+variant="danger"    → bg=danger,  text=white            (Sign Out)
+variant="ghost"     → bg=transparent, border=border     (secondary actions)
+
+size="sm"           → compact, inline use
+size="md"           → default
+size="lg"           → full-width CTA
+
+loading={bool}      → spinner replaces label, disabled
+disabled={bool}
+
+// Examples
+&lt;Button variant="primary" size="lg" loading={isPending}&gt;Start Learning&lt;/Button&gt;
+&lt;Button variant="danger"  size="lg"&gt;Sign Out&lt;/Button&gt;
+&lt;Button variant="ghost"   size="sm"&gt;Cancel&lt;/Button&gt;</pre>
+</div>
+
+<div class="section">
+  <h3>Input — with label / error / helper</h3>
+  <p>Compound component: wraps label + field + feedback text in a single unit.</p>
+  <pre style="background:#0f172a;color:#94a3b8;padding:14px;border-radius:8px;font-size:12px;line-height:1.8">label="Email"                     // AppText variant="label" above field
+error="Invalid email address"     // AppText variant="error" below (overrides helper)
+helper="We'll never share this"   // AppText variant="caption" below
+
+// Border turns danger color when error is set
+// Label + error/helper are optional — bare Input still works for chat
+
+// Examples
+&lt;Input label="Email" keyboardType="email-address" error={errors.email} /&gt;
+&lt;Input label="Password" secureTextEntry helper="At least 8 characters" /&gt;
+&lt;Input multiline maxLength={4000} /&gt;  // chat input — no label</pre>
+</div>
+
+<div class="section">
+  <h3>Card — with variants</h3>
+  <pre style="background:#0f172a;color:#94a3b8;padding:14px;border-radius:8px;font-size:12px;line-height:1.8">variant="default"   → bg=surface, border              (course cards, info card)
+variant="elevated"  → bg=surfaceHover, no border      (highlighted / active)
+variant="ghost"     → bg=transparent, border=dashed   (empty state placeholder)
+
+onPress={fn}        → makes card pressable + adds press opacity
+disabled={bool}     → opacity=0.45, non-interactive   (locked modules)
+
+// Examples
+&lt;Card variant="default" onPress={() =&gt; router.push(...)}&gt;
+  ...course content
+&lt;/Card&gt;
+
+&lt;Card variant="default" disabled={isLocked}&gt;
+  ...locked module
+&lt;/Card&gt;
+
+&lt;Card variant="elevated"&gt;
+  ...profile info
+&lt;/Card&gt;</pre>
+</div>
+
+<div class="section">
+  <h3>Updated file list</h3>
+  <pre style="background:#0f172a;color:#94a3b8;padding:14px;border-radius:8px;font-size:12px;line-height:1.7">src/components/
+├── Screen.tsx        layout wrapper
+├── Heading.tsx       h1 | h2
+├── AppText.tsx       body | muted | caption | label | error  ← replaces Body.tsx
+├── Button.tsx        primary | danger | ghost  ×  sm | md | lg
+├── Input.tsx         label + field + error/helper
+├── Chip.tsx          toggle chip
+├── IconButton.tsx    circular icon button
+├── Card.tsx          default | elevated | ghost
+├── Badge.tsx         default | success | warning | danger
+├── ProgressBar.tsx
+├── PositionBadge.tsx
+├── ChatBubble.tsx
+├── EmptyState.tsx
+└── index.ts</pre>
+</div>
+
+<div class="section" style="background:#1e293b;border-radius:12px;padding:16px;border:1px solid #334155">
+  <p style="color:#94a3b8;font-size:13px;margin:0">
+    ✓ <code>AppText</code> variant is semantic — consumers express intent, not numbers<br>
+    ✓ <code>Input</code> is self-contained — label/error/helper colocated with the field<br>
+    ✓ <code>Button</code> size is independent of variant — any combination works<br>
+    ✓ <code>Card</code> disabled prop handles locked modules with a single prop
+  </p>
+</div>
+
+<p style="margin-top:24px;color:#f1f5f9;font-size:15px">Does this component API look right?</p>

@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { BullMQQueueProvider } from '../implementations/queue/bullmq.provider.js';
 
 // ────────────────────────────────────────────────────────────────────────────
 // Mock ioredis and bullmq before importing the provider under test
@@ -22,8 +23,6 @@ const MockQueue = vi.fn().mockImplementation(() => ({
 }));
 
 vi.mock('bullmq', () => ({ Queue: MockQueue }));
-
-const { BullMQQueueProvider } = await import('../implementations/queue/bullmq.provider.js');
 
 // ────────────────────────────────────────────────────────────────────────────
 

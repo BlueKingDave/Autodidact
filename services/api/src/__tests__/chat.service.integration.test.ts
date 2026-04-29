@@ -37,7 +37,7 @@ vi.mock('@autodidact/db', () => ({
 
 vi.mock('uuid', () => ({ v4: vi.fn(() => 'test-uuid-123') }));
 
-const { ChatService } = await import('../modules/chat/chat.service.js');
+import { ChatService } from '../modules/chat/chat.service.js';
 
 // ────────────────────────────────────────────────────────────────────────────
 

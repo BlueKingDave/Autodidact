@@ -15,6 +15,7 @@ function makeMockProvider(responseContent: string) {
 }
 
 const sampleModule = {
+  id: 'mod-1',
   position: 0,
   title: 'Variables',
   description: 'Learn Python variables.',

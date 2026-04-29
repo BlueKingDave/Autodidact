@@ -1,0 +1,85 @@
+<h2>Section 2 — Component Folder Structure (revised)</h2>
+<p class="subtitle">Sub-folders by concern + a README.md at the root of <code>src/components/</code>.</p>
+
+<div class="section">
+  <h3>Folder structure</h3>
+  <pre style="background:#0f172a;color:#94a3b8;padding:14px;border-radius:8px;font-size:12px;line-height:1.8">src/components/
+├── README.md               ← explains every file and why it exists
+│
+├── layout/
+│   └── Screen.tsx          ← page wrapper (SafeArea + optional scroll)
+│
+├── typography/
+│   ├── Heading.tsx         ← h1 / h2 structural headings
+│   └── AppText.tsx         ← body | muted | caption | label | error
+│
+├── interactive/
+│   ├── Button.tsx          ← primary | danger | ghost  ×  sm | md | lg
+│   ├── IconButton.tsx      ← circular icon-only button
+│   ├── Input.tsx           ← field + label + error + helper
+│   └── Chip.tsx            ← toggle chip (difficulty selector)
+│
+├── display/
+│   ├── Card.tsx            ← default | elevated | ghost, pressable + disabled
+│   ├── Badge.tsx           ← small pill: default | success | warning | danger
+│   ├── ProgressBar.tsx     ← horizontal fill bar (0–1 value)
+│   ├── PositionBadge.tsx   ← circular step number / ✓ (module list)
+│   ├── ChatBubble.tsx      ← message bubble: user | assistant + streaming cursor
+│   └── EmptyState.tsx      ← centered message for empty lists
+│
+└── index.ts                ← barrel: re-exports everything from all folders</pre>
+</div>
+
+<div class="section">
+  <h3>README.md — structure</h3>
+  <pre style="background:#0f172a;color:#94a3b8;padding:14px;border-radius:8px;font-size:12px;line-height:1.8"># components/
+
+All shared UI components. Built on Tamagui primitives.
+Import from the barrel: `import { Card, AppText } from '@/components'`
+
+## layout/
+Components that control page structure and safe area behaviour.
+
+**Screen** — wraps every screen. Handles SafeAreaView, background colour,
+and optional ScrollView. Exists so screens don't repeat safe-area boilerplate.
+
+## typography/
+Single source of truth for all text rendering.
+
+**Heading** — h1/h2 only. Structural headings, not inline emphasis.
+**AppText** — all other text. variant prop is the primary API:
+  body, muted, caption, label, error.
+  Size and weight props override defaults when needed.
+
+## interactive/
+Components the user directly acts on.
+
+**Button** — primary/danger/ghost variants, sm/md/lg sizes, built-in loading state.
+**IconButton** — circular icon-only button. Used for the chat send action.
+**Input** — text field with colocated label, error, and helper text.
+  Exists so label+field+validation are always kept together.
+**Chip** — single-select toggle. Used for the difficulty picker on HomeScreen.
+
+## display/
+Read-only visual components that present data.
+
+**Card** — surface container. default/elevated/ghost variants.
+  onPress makes it pressable; disabled reduces opacity (locked modules).
+**Badge** — small status pill. Communicates state at a glance.
+**ProgressBar** — linear 0–1 fill bar. Used for course completion.
+**PositionBadge** — circular module step indicator. Shows number or ✓.
+**ChatBubble** — message bubble. User and assistant variants.
+  Renders streaming cursor while isStreaming is true.
+**EmptyState** — centred message for lists with no data.</pre>
+</div>
+
+<div class="section" style="background:#1e293b;border-radius:12px;padding:16px;border:1px solid #334155">
+  <p style="color:#94a3b8;font-size:13px;margin:0">
+    ✓ 4 folders — layout, typography, interactive, display<br>
+    ✓ Folder name answers "what kind of thing is this?"<br>
+    ✓ README explains the <em>why</em> for each file, not just the what<br>
+    ✓ Single barrel <code>index.ts</code> — screens always import from one place
+  </p>
+</div>
+
+<p style="margin-top:24px;color:#f1f5f9;font-size:15px">Does this structure look right?</p>

@@ -1,0 +1,72 @@
+<h2>Section 1 — Token & Theme Layer</h2>
+<p class="subtitle">The foundation everything else builds on. Three files in <code>src/design/</code>.</p>
+
+<div class="section">
+  <h3>tokens.ts — primitive values</h3>
+  <p>Raw scales with no semantic meaning. Every value the app can ever use lives here.</p>
+  <pre style="background:#0f172a;color:#94a3b8;padding:16px;border-radius:8px;font-size:12px;line-height:1.7">// Color palette (migrated from colors.ts — that file is deleted)
+color: {
+  slate50:  '#f8fafc',  slate100: '#f1f5f9',
+  slate400: '#94a3b8',  slate500: '#64748b',
+  slate600: '#475569',  slate700: '#334155',
+  slate800: '#1e293b',  slate900: '#0f172a',
+  indigo400: '#818cf8', indigo500: '#6366f1',
+  green500:  '#22c55e', amber500:  '#f59e0b',
+  red500:    '#ef4444',
+}
+
+// Spacing scale (maps to $1–$10 in Tamagui)
+space: { 1:4, 2:8, 3:12, 4:16, 5:20, 6:24, 8:32, 10:40 }
+
+// Border radius
+radius: { sm:8, md:12, lg:16, full:9999 }
+
+// Size scale (icons, avatars, badges)
+size: { sm:24, md:32, lg:40, xl:56 }</pre>
+</div>
+
+<div class="section">
+  <h3>themes.ts — semantic tokens (dark)</h3>
+  <p>Maps primitive colors to intent. Screens reference semantics, never raw hex.</p>
+  <pre style="background:#0f172a;color:#94a3b8;padding:16px;border-radius:8px;font-size:12px;line-height:1.7">dark: {
+  background:       slate900,   // page backgrounds
+  surface:          slate800,   // cards, inputs
+  surfaceHigh:      slate700,   // elevated surfaces, progress track
+  border:           slate700,
+
+  text:             slate100,   // primary readable text
+  textMuted:        slate400,   // secondary/description text
+  textDim:          slate500,   // placeholder, disabled
+
+  primary:          indigo500,  // CTAs, active states
+  primaryLight:     indigo400,  // badges, light accents
+
+  success:          green500,
+  warning:          amber500,
+  error:            red500,
+
+  userBubble:       indigo500,  // chat
+  assistantBubble:  slate800,
+}</pre>
+</div>
+
+<div class="section">
+  <h3>typography.ts — type scale (system font)</h3>
+  <p>One font family definition with all size/weight steps. Used by Tamagui's <code>createFont</code>.</p>
+  <pre style="background:#0f172a;color:#94a3b8;padding:16px;border-radius:8px;font-size:12px;line-height:1.7">family: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+
+size:   { h1:32, h2:26, h3:20, h4:17, body:15, sm:13, xs:12 }
+weight: { regular:'400', semibold:'600', bold:'700' }
+lineHeight: { tight:1.2, normal:1.5, relaxed:1.7 }
+
+// Named scale that maps to Tamagui's $1–$9 convention
+// h1 → $9, body → $5, xs → $2</pre>
+</div>
+
+<div class="section" style="background:#1e293b;border-radius:12px;padding:16px;border:1px solid #334155">
+  <p style="color:#94a3b8;font-size:13px">✓ <code>colors.ts</code> is deleted — <code>tokens.ts</code> is the new single source of truth for all raw values<br>
+  ✓ Screens never import hex values directly<br>
+  ✓ Adding a light theme later = add one new object to <code>themes.ts</code>, zero screen changes</p>
+</div>
+
+<p style="margin-top:24px;color:#f1f5f9;font-size:15px">Does this token layer look right?</p>

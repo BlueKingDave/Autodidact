@@ -127,7 +127,7 @@ export declare const courses: import("drizzle-orm/pg-core").PgTableWithColumns<{
             tableName: "courses";
             dataType: "string";
             columnType: "PgEnumColumn";
-            data: "pending" | "generating" | "ready" | "failed";
+            data: "ready" | "pending" | "generating" | "failed";
             driverParam: string;
             notNull: true;
             hasDefault: true;

@@ -5,6 +5,7 @@ import {
   buildCourseGenerationPrompt,
 } from '@autodidact/prompts';
 import type { ILLMProvider } from '@autodidact/providers';
+import type { CourseBlueprint } from '@autodidact/types';
 import type { CourseGenerationStateType } from './state.js';
 
 export function makeGenerateBlueprintNode(llmProvider: ILLMProvider) {
@@ -35,7 +36,11 @@ export function makeGenerateBlueprintNode(llmProvider: ILLMProvider) {
     const parsed = CourseBlueprintSchema.safeParse(JSON.parse(jsonStr.trim()));
 
     if (parsed.success) {
-      return { blueprint: parsed.data, retryCount: state.retryCount };
+      const blueprint: CourseBlueprint = {
+        ...parsed.data,
+        modules: parsed.data.modules.map(m => ({ ...m, id: m.id ?? crypto.randomUUID() })),
+      };
+      return { blueprint, retryCount: state.retryCount };
     }
 
     return {

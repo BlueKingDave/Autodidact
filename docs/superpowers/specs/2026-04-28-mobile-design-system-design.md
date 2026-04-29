@@ -145,7 +145,9 @@ Single call to `createTamagui`. Exported and consumed only by `TamaguiProvider` 
 
 All components are built on Tamagui primitives (`XStack`, `YStack`, `Text`, etc.). No `StyleSheet.create` in any component or screen after migration.
 
-Screens import exclusively from the barrel: `import { Card, AppText, Button } from '../components'`
+Screens import exclusively from the barrel using a path alias: `import { Card, AppText, Button } from '@/components'`
+
+The `@/` alias maps to `src/` and must be configured in `tsconfig.json` and `babel.config.js`. This avoids relative path fragility in deeply nested screens.
 
 ### layout/Screen
 

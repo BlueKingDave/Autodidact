@@ -1,0 +1,81 @@
+<h2>Full src/ Design Structure</h2>
+<p class="subtitle">Both <code>design/</code> and <code>components/</code> — each with a README.</p>
+
+<div class="section">
+  <h3>Complete structure</h3>
+  <pre style="background:#0f172a;color:#94a3b8;padding:14px;border-radius:8px;font-size:12px;line-height:1.8">src/
+├── design/
+│   ├── README.md           ← explains the token/theme system
+│   ├── tokens.ts           ← primitive values (colors, spacing, radius, size)
+│   ├── themes.ts           ← semantic tokens (bg, surface, text, primary…)
+│   ├── typography.ts       ← font family + named type scale
+│   └── config.ts           ← assembles everything into Tamagui config
+│
+├── components/
+│   ├── README.md           ← explains every component and why it exists
+│   ├── layout/
+│   │   └── Screen.tsx
+│   ├── typography/
+│   │   ├── Heading.tsx
+│   │   └── AppText.tsx
+│   ├── interactive/
+│   │   ├── Button.tsx
+│   │   ├── IconButton.tsx
+│   │   ├── Input.tsx
+│   │   └── Chip.tsx
+│   ├── display/
+│   │   ├── Card.tsx
+│   │   ├── Badge.tsx
+│   │   ├── ProgressBar.tsx
+│   │   ├── PositionBadge.tsx
+│   │   ├── ChatBubble.tsx
+│   │   └── EmptyState.tsx
+│   └── index.ts
+│
+├── api/          (unchanged)
+├── hooks/        (unchanged)
+└── stores/       (unchanged)</pre>
+</div>
+
+<div class="section">
+  <h3>design/README.md — structure</h3>
+  <pre style="background:#0f172a;color:#94a3b8;padding:14px;border-radius:8px;font-size:12px;line-height:1.8"># design/
+
+Single source of truth for all visual values.
+Nothing outside this folder defines colors, spacing, or type sizes.
+The old `constants/colors.ts` is deleted — all values live here.
+
+## How it fits together
+tokens → themes → typography → config
+Each layer depends only on the one before it.
+
+**tokens.ts** — primitive scales. Raw color hex values, numeric spacing
+  steps, border radius values, icon sizes. No semantic meaning.
+  If you need a new color in the app, it starts here.
+
+**themes.ts** — semantic mapping. Names a subset of token values by
+  intent: bg, surface, surfaceHover, text, textMuted, border,
+  primary, primaryHover, success, warning, danger, overlay.
+  Screens and components reference these names, never raw tokens.
+  Adding a light theme = add one new object here, zero screen changes.
+
+**typography.ts** — font system. Defines the system font family and
+  the named type scale: h1, h2, xl, lg, md, sm, xs.
+  Also defines weight tokens: regular, semibold, bold.
+  Consumed by config.ts via Tamagui's createFont.
+
+**config.ts** — Tamagui assembly. Calls createTamagui with tokens,
+  themes, and fonts. The single export consumed by TamaguiProvider
+  in app/_layout.tsx. Nothing else should call createTamagui.</pre>
+</div>
+
+<div class="section" style="background:#1e293b;border-radius:12px;padding:16px;border:1px solid #334155">
+  <p style="color:#94a3b8;font-size:13px;margin:0">
+    ✓ Both <code>design/</code> and <code>components/</code> have READMEs<br>
+    ✓ <code>design/README.md</code> explains the dependency chain: tokens → themes → typography → config<br>
+    ✓ <code>constants/colors.ts</code> is explicitly deleted — one source of truth<br>
+    ✓ The rule is clear: new color = starts in tokens.ts, semantic name in themes.ts
+  </p>
+</div>
+
+<p style="margin-top:24px;color:#f1f5f9;font-size:15px">Does the full structure look right?</p>

@@ -49,13 +49,13 @@ vi.mock('../implementations/checkpointer/postgres.provider', () => ({
   })),
 }));
 
-const {
+import {
   createLLMProvider,
   createEmbeddingProvider,
   createQueueProvider,
   createAuthProvider,
   createCheckpointer,
-} = await import('../factory.js');
+} from '../factory.js';
 
 // ────────────────────────────────────────────────────────────────────────────
 

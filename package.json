@@ -3,12 +3,19 @@
   "private": true,
   "version": "0.1.0",
   "scripts": {
+    "setup": "./scripts/setup.sh",
+    "dev": "./scripts/dev.sh",
+    "mobile": "./scripts/mobile.sh",
+    "stop": "./scripts/stop.sh",
     "build": "turbo run build",
-    "dev": "turbo run dev",
-    "lint": "turbo run lint",
-    "typecheck": "turbo run typecheck",
-    "test": "turbo run test",
-    "clean": "turbo run clean"
+    "test": "./scripts/test.sh",
+    "typecheck": "./scripts/typecheck.sh",
+    "lint": "./scripts/lint.sh",
+    "clean": "turbo run clean",
+    "migrate": "./scripts/migrate.sh",
+    "db:reset": "./scripts/db-reset.sh",
+    "db:studio": "./scripts/db-studio.sh",
+    "db:generate": "./scripts/gen-migration.sh"
   },
   "devDependencies": {
     "turbo": "^2.3.3",

@@ -1,11 +1,10 @@
 import { describe, it, expect, vi, afterEach } from 'vitest';
+import { createLogger } from '../logger.js';
 
 // Mock pino-pretty transport to avoid spawning worker threads in tests
 vi.mock('pino-pretty', () => ({
   default: vi.fn(() => process.stdout),
 }));
-
-const { createLogger } = await import('../logger.js');
 
 describe('createLogger()', () => {
   afterEach(() => {

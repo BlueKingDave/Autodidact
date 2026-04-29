@@ -1,0 +1,134 @@
+<h2>Section 2 — Component Layer</h2>
+<p class="subtitle">Shared components in <code>src/components/</code>. All built on Tamagui primitives, themed via our token layer.</p>
+
+<div class="section">
+  <h3>Layout</h3>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;font-size:12px">
+    <div style="background:#0f172a;padding:14px;border-radius:8px;color:#94a3b8;line-height:1.8">
+      <strong style="color:#f1f5f9">Screen</strong><br>
+      SafeAreaView + optional ScrollView wrapper.<br>
+      Props: <code>scroll</code>, <code>padding</code><br>
+      Used by: all 7 screens
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>Typography</h3>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;font-size:12px">
+    <div style="background:#0f172a;padding:14px;border-radius:8px;color:#94a3b8;line-height:1.8">
+      <strong style="color:#f1f5f9">Heading</strong><br>
+      Renders h1 or h2 size.<br>
+      Props: <code>size="h1|h2"</code>, <code>color</code><br>
+      Used by: HomeScreen, CourseDetail, SignIn
+    </div>
+    <div style="background:#0f172a;padding:14px;border-radius:8px;color:#94a3b8;line-height:1.8">
+      <strong style="color:#f1f5f9">Body</strong><br>
+      Renders xs–xl sizes.<br>
+      Props: <code>size="xs|sm|md|lg|xl"</code>, <code>weight</code>, <code>color</code>, <code>muted</code><br>
+      Used by: everywhere
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>Interactive</h3>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;font-size:12px">
+    <div style="background:#0f172a;padding:14px;border-radius:8px;color:#94a3b8;line-height:1.8">
+      <strong style="color:#f1f5f9">Button</strong><br>
+      Variants: <code>primary</code>, <code>danger</code>, <code>ghost</code><br>
+      Loading state built-in (spinner replaces label)<br>
+      Used by: HomeScreen, SignIn, Profile, Chat
+    </div>
+    <div style="background:#0f172a;padding:14px;border-radius:8px;color:#94a3b8;line-height:1.8">
+      <strong style="color:#f1f5f9">Input</strong><br>
+      Themed text input.<br>
+      Props: <code>multiline</code>, <code>maxLength</code>, <code>secureTextEntry</code><br>
+      Used by: HomeScreen, SignIn, Chat
+    </div>
+    <div style="background:#0f172a;padding:14px;border-radius:8px;color:#94a3b8;line-height:1.8">
+      <strong style="color:#f1f5f9">Chip</strong><br>
+      Toggle button for option selection.<br>
+      Props: <code>selected</code>, <code>onPress</code>, <code>label</code><br>
+      Used by: HomeScreen difficulty selector
+    </div>
+    <div style="background:#0f172a;padding:14px;border-radius:8px;color:#94a3b8;line-height:1.8">
+      <strong style="color:#f1f5f9">IconButton</strong><br>
+      Circular icon-only button.<br>
+      Props: <code>icon</code>, <code>size</code>, <code>variant</code><br>
+      Used by: Chat send button
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>Display</h3>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;font-size:12px">
+    <div style="background:#0f172a;padding:14px;border-radius:8px;color:#94a3b8;line-height:1.8">
+      <strong style="color:#f1f5f9">Card</strong><br>
+      Surface container: <code>bg=surface</code>, border, radius.<br>
+      Props: <code>onPress</code>, <code>disabled</code>, <code>opacity</code><br>
+      Used by: MyCourses (course card), CourseDetail (module card), Profile (info card)
+    </div>
+    <div style="background:#0f172a;padding:14px;border-radius:8px;color:#94a3b8;line-height:1.8">
+      <strong style="color:#f1f5f9">Badge</strong><br>
+      Small pill for labels.<br>
+      Props: <code>label</code>, <code>variant="default|success|warning|danger"</code><br>
+      Used by: MyCourses (difficulty), CourseDetail (status)
+    </div>
+    <div style="background:#0f172a;padding:14px;border-radius:8px;color:#94a3b8;line-height:1.8">
+      <strong style="color:#f1f5f9">ProgressBar</strong><br>
+      Horizontal fill bar.<br>
+      Props: <code>value</code> (0–1), <code>label</code><br>
+      Used by: CourseDetail
+    </div>
+    <div style="background:#0f172a;padding:14px;border-radius:8px;color:#94a3b8;line-height:1.8">
+      <strong style="color:#f1f5f9">PositionBadge</strong><br>
+      Circular step indicator (number or ✓).<br>
+      Props: <code>position</code>, <code>completed</code><br>
+      Used by: CourseDetail module list
+    </div>
+    <div style="background:#0f172a;padding:14px;border-radius:8px;color:#94a3b8;line-height:1.8">
+      <strong style="color:#f1f5f9">ChatBubble</strong><br>
+      Message bubble, user or assistant.<br>
+      Props: <code>message</code>, <code>isStreaming</code><br>
+      Used by: Chat screen
+    </div>
+    <div style="background:#0f172a;padding:14px;border-radius:8px;color:#94a3b8;line-height:1.8">
+      <strong style="color:#f1f5f9">EmptyState</strong><br>
+      Centered text for empty lists.<br>
+      Props: <code>message</code><br>
+      Used by: MyCourses empty list
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>File layout</h3>
+  <pre style="background:#0f172a;color:#94a3b8;padding:14px;border-radius:8px;font-size:12px;line-height:1.7">src/components/
+├── Screen.tsx
+├── Heading.tsx
+├── Body.tsx
+├── Button.tsx
+├── Input.tsx
+├── Chip.tsx
+├── IconButton.tsx
+├── Card.tsx
+├── Badge.tsx
+├── ProgressBar.tsx
+├── PositionBadge.tsx
+├── ChatBubble.tsx
+├── EmptyState.tsx
+└── index.ts         ← barrel: export * from each</pre>
+</div>
+
+<div class="section" style="background:#1e293b;border-radius:12px;padding:16px;border:1px solid #334155">
+  <p style="color:#94a3b8;font-size:13px;margin:0">
+    ✓ 13 components cover 100% of existing screen UI<br>
+    ✓ All built on Tamagui XStack/YStack/Text — no raw RN primitives in screens<br>
+    ✓ No StyleSheet.create anywhere after migration<br>
+    ✓ Single barrel export — screens import from <code>'../components'</code>
+  </p>
+</div>
+
+<p style="margin-top:24px;color:#f1f5f9;font-size:15px">Does the component list look complete?</p>

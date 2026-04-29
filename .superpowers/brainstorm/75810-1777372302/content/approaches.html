@@ -1,0 +1,52 @@
+<h2>Design System Architecture — Pick an Approach</h2>
+<p class="subtitle">How do we structure the token + component layer inside <code>apps/mobile/src/</code>?</p>
+
+<div class="options">
+  <div class="option" data-choice="a" onclick="toggleSelect(this)">
+    <div class="letter">A</div>
+    <div class="content">
+      <h3>Flat — single config file</h3>
+      <p>All tokens (colors, spacing, typography) live in one <code>tamagui.config.ts</code>. Components in <code>src/components/</code>.</p>
+      <div class="pros-cons">
+        <div class="pros"><h4>Pros</h4><ul><li>Simple to start</li><li>One file to find everything</li></ul></div>
+        <div class="cons"><h4>Cons</h4><ul><li>Grows unwieldy fast</li><li>Hard to evolve color modes later</li></ul></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="option" data-choice="b" onclick="toggleSelect(this)">
+    <div class="letter">B</div>
+    <div class="content">
+      <h3>Layered — design/ folder ⭐ Recommended</h3>
+      <p>Separate primitive tokens from semantic tokens, then assemble into Tamagui config.</p>
+      <pre style="background:#0f172a;color:#94a3b8;padding:12px;border-radius:8px;font-size:12px;line-height:1.6;margin-top:10px">src/
+├── design/
+│   ├── tokens.ts      ← primitive scales (all colors, size steps)
+│   ├── themes.ts      ← semantic tokens (surface, text, etc.)
+│   ├── typography.ts  ← type scale (h1–p, weights, sizes)
+│   └── config.ts      ← assembles Tamagui config
+├── components/
+│   ├── Card.tsx
+│   ├── Button.tsx
+│   ├── Input.tsx
+│   └── index.ts       ← barrel export
+└── ...</pre>
+      <div class="pros-cons">
+        <div class="pros"><h4>Pros</h4><ul><li>Clear separation of concerns</li><li>Easy to add dark/light modes later</li><li>Scales well</li></ul></div>
+        <div class="cons"><h4>Cons</h4><ul><li>More files than A</li></ul></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="option" data-choice="c" onclick="toggleSelect(this)">
+    <div class="letter">C</div>
+    <div class="content">
+      <h3>Monorepo package — packages/ui</h3>
+      <p>Extract the entire design system into a shared monorepo package, ready for a future web app.</p>
+      <div class="pros-cons">
+        <div class="pros"><h4>Pros</h4><ul><li>Shareable across apps</li><li>Clean boundary</li></ul></div>
+        <div class="cons"><h4>Cons</h4><ul><li>Significant build config overhead</li><li>Premature — only one app today</li><li>Tamagui + monorepo requires careful setup</li></ul></div>
+      </div>
+    </div>
+  </div>
+</div>

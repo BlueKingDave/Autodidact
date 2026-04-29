@@ -4,8 +4,7 @@ import { PostgreSqlContainer, type StartedPostgreSqlContainer } from '@testconta
 import { Pool } from 'pg';
 import { drizzle } from 'drizzle-orm/node-postgres';
 import { readFileSync } from 'fs';
-import { join, dirname } from 'path';
-import { fileURLToPath } from 'url';
+import { join } from 'path';
 
 // ────────────────────────────────────────────────────────────────────────────
 // testDb is set in beforeAll; getDb() closure defers resolution until call time
@@ -26,7 +25,7 @@ vi.mock('@autodidact/db', async () => {
   };
 });
 
-const {
+import {
   users,
   courses,
   modules,
@@ -34,13 +33,11 @@ const {
   moduleProgress,
   eq,
   and,
-} = await import('@autodidact/db');
-const { ProgressService } = await import('../modules/progress/progress.service.js');
+} from '@autodidact/db';
+import { ProgressService } from '../modules/progress/progress.service.js';
 
 // ────────────────────────────────────────────────────────────────────────────
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
 const MIGRATIONS_DIR = join(__dirname, '../../../../packages/db/migrations');
 
 let container: StartedPostgreSqlContainer;

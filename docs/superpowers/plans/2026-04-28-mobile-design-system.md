@@ -6,7 +6,7 @@
 
 **Architecture:** Layered `src/design/` (tokens → themes → typography → config) feeds a `src/components/` library (layout / typography / interactive / display). Screens import only from `@/components` via a barrel. Zero `StyleSheet.create` anywhere after migration.
 
-**Tech Stack:** Expo 52, React Native 0.76, Tamagui 1.x, `@tamagui/animations-react-native`, `@tamagui/babel-plugin`, system fonts, TypeScript strict.
+**Tech Stack:** Expo 52, React Native 0.76, Tamagui 2.0.0-rc.41 (RC — React 18 works despite `react>=19` peer dep warning), `@tamagui/animations-react-native`, `@tamagui/babel-plugin`, system fonts, TypeScript strict.
 
 **Verification note:** The mobile app has no test runner. Each task verifies correctness with `pnpm --filter @autodidact/mobile typecheck` (runs `tsc --noEmit`). This is the TDD loop for a UI-only migration.
 

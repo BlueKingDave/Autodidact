@@ -3,6 +3,7 @@ import { buildModuleSystemPrompt } from '../module-teacher.js';
 import type { ModuleBlueprint } from '@autodidact/types';
 
 const sampleModule: ModuleBlueprint = {
+  id: 'mod-1',
   position: 0,
   title: 'Variables and Types',
   description: 'Learn Python variables and basic data types.',

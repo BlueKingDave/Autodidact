@@ -35,7 +35,7 @@ vi.mock('@autodidact/db', () => ({
   })),
 }));
 
-const { CoursesService } = await import('../modules/courses/courses.service.js');
+import { CoursesService } from '../modules/courses/courses.service.js';
 
 // ────────────────────────────────────────────────────────────────────────────
 
