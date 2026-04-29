@@ -34,7 +34,7 @@
     "extra": {
       "apiBaseUrl": "http://localhost:3000/v1",
       "supabaseUrl": "",
-      "supabaseAnonKey": ""
+      "supabasePublishableKey": ""
     }
   }
 }

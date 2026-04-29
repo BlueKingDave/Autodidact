@@ -20,12 +20,11 @@
     "@supabase/supabase-js": "^2.46.0",
     "bullmq": "^5.0.0",
     "ioredis": "^5.4.0",
-    "jsonwebtoken": "^9.0.2"
+    "jose": "^6.2.3"
   },
   "devDependencies": {
     "@autodidact/config": "workspace:*",
     "@autodidact/types": "workspace:*",
-    "@types/jsonwebtoken": "^9.0.7",
     "@vitest/coverage-v8": "^2.1.0",
     "typescript": "^5.6.3",
     "vitest": "^2.1.0"

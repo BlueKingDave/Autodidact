@@ -4,9 +4,10 @@ import * as SecureStore from 'expo-secure-store';
 import type { UserProfile } from '@autodidact/types';
 
 interface AuthState {
-  token: string | null;
+  accessToken: string | null;
+  refreshToken: string | null;
   user: UserProfile | null;
-  setToken: (token: string) => void;
+  setSession: (accessToken: string, refreshToken: string) => void;
   setUser: (user: UserProfile) => void;
   clearSession: () => void;
 }
@@ -20,11 +21,12 @@ const secureStorage = {
 export const useAuthStore = create<AuthState>()(
   persist(
     (set) => ({
-      token: null,
+      accessToken: null,
+      refreshToken: null,
       user: null,
-      setToken: (token) => set({ token }),
+      setSession: (accessToken, refreshToken) => set({ accessToken, refreshToken }),
       setUser: (user) => set({ user }),
-      clearSession: () => set({ token: null, user: null }),
+      clearSession: () => set({ accessToken: null, refreshToken: null, user: null }),
     }),
     {
       name: 'autodidact-auth',

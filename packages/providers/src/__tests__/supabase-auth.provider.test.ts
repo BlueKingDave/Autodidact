@@ -1,86 +1,100 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { SupabaseAuthProvider } from '../implementations/auth/supabase-auth.provider.js';
 
-// ────────────────────────────────────────────────────────────────────────────
-// Mock @supabase/supabase-js
-// ────────────────────────────────────────────────────────────────────────────
+// ── Mock jose ────────────────────────────────────────────────────────────────
+// vi.hoisted ensures these variables are initialised before the vi.mock factory
+// runs (which is hoisted to the top of the file by vitest's transform).
 
-const mockGetUser = vi.fn();
-vi.mock('@supabase/supabase-js', () => ({
-  createClient: vi.fn().mockReturnValue({
-    auth: { getUser: mockGetUser },
-  }),
+const { mockJwtVerify, mockJwkSet } = vi.hoisted(() => ({
+  mockJwtVerify: vi.fn(),
+  mockJwkSet: {},
 }));
 
-// ────────────────────────────────────────────────────────────────────────────
+vi.mock('jose', () => ({
+  createRemoteJWKSet: vi.fn(() => mockJwkSet),
+  jwtVerify: mockJwtVerify,
+}));
+
+// ─────────────────────────────────────────────────────────────────────────────
+
+const SUPABASE_URL = 'https://test.supabase.co';
 
 function makeProvider() {
-  return new SupabaseAuthProvider({
-    supabaseUrl: 'https://test.supabase.co',
-    serviceRoleKey: 'service-key',
-  });
+  return new SupabaseAuthProvider({ supabaseUrl: SUPABASE_URL });
 }
 
+beforeEach(() => {
+  vi.clearAllMocks();
+});
+
+describe('SupabaseAuthProvider construction', () => {
+  it('creates the JWKS set from the correct endpoint URL', async () => {
+    const { createRemoteJWKSet } = await import('jose');
+    makeProvider();
+    expect(createRemoteJWKSet).toHaveBeenCalledWith(
+      new URL(`${SUPABASE_URL}/auth/v1/.well-known/jwks.json`),
+    );
+  });
+});
+
 describe('SupabaseAuthProvider.verifyToken()', () => {
-  it('returns { id, supabaseId, email } on successful token verification', async () => {
-    mockGetUser.mockResolvedValue({
-      data: { user: { id: 'user-uuid-1', email: 'alice@example.com' } },
-      error: null,
+  it('returns { id, supabaseId, email, role } mapped from JWT claims', async () => {
+    mockJwtVerify.mockResolvedValue({
+      payload: { sub: 'user-uuid-1', email: 'alice@example.com', role: 'authenticated' },
     });
-    const provider = makeProvider();
-    const result = await provider.verifyToken('valid-token');
+    const result = await makeProvider().verifyToken('valid-token');
     expect(result).toEqual({
       id: 'user-uuid-1',
       supabaseId: 'user-uuid-1',
       email: 'alice@example.com',
+      role: 'authenticated',
     });
   });
 
-  it('uses the same value for id and supabaseId', async () => {
-    mockGetUser.mockResolvedValue({
-      data: { user: { id: 'user-uuid-2', email: 'bob@example.com' } },
-      error: null,
+  it('id and supabaseId are both equal to the sub claim', async () => {
+    mockJwtVerify.mockResolvedValue({
+      payload: { sub: 'user-uuid-2', email: 'bob@example.com' },
     });
-    const provider = makeProvider();
-    const result = await provider.verifyToken('token');
+    const result = await makeProvider().verifyToken('token');
     expect(result.id).toBe(result.supabaseId);
+    expect(result.id).toBe('user-uuid-2');
   });
 
-  it('returns email="" when user.email is null', async () => {
-    mockGetUser.mockResolvedValue({
-      data: { user: { id: 'user-uuid-3', email: null } },
-      error: null,
-    });
-    const provider = makeProvider();
-    const result = await provider.verifyToken('token');
+  it('email defaults to "" when the claim is absent', async () => {
+    mockJwtVerify.mockResolvedValue({ payload: { sub: 'user-uuid-3' } });
+    const result = await makeProvider().verifyToken('token');
     expect(result.email).toBe('');
   });
 
-  it('throws when Supabase returns an error', async () => {
-    mockGetUser.mockResolvedValue({
-      data: { user: null },
-      error: { message: 'Token expired' },
-    });
-    const provider = makeProvider();
-    await expect(provider.verifyToken('bad-token')).rejects.toThrow('Invalid token');
+  it('role is undefined when the claim is absent', async () => {
+    mockJwtVerify.mockResolvedValue({ payload: { sub: 'u', email: 'u@u.com' } });
+    const result = await makeProvider().verifyToken('token');
+    expect(result.role).toBeUndefined();
   });
 
-  it('throws when data.user is null (no error but no user)', async () => {
-    mockGetUser.mockResolvedValue({
-      data: { user: null },
-      error: null,
-    });
-    const provider = makeProvider();
-    await expect(provider.verifyToken('orphan-token')).rejects.toThrow('Invalid token');
+  it('passes issuer and audience: "authenticated" to jwtVerify', async () => {
+    mockJwtVerify.mockResolvedValue({ payload: { sub: 'u', email: 'u@u.com' } });
+    await makeProvider().verifyToken('some-token');
+    expect(mockJwtVerify).toHaveBeenCalledWith(
+      'some-token',
+      mockJwkSet,
+      { issuer: `${SUPABASE_URL}/auth/v1`, audience: 'authenticated' },
+    );
   });
 
-  it('calls getUser with the provided token', async () => {
-    mockGetUser.mockResolvedValue({
-      data: { user: { id: 'u', email: 'u@u.com' } },
-      error: null,
-    });
-    const provider = makeProvider();
-    await provider.verifyToken('my-token-abc');
-    expect(mockGetUser).toHaveBeenCalledWith('my-token-abc');
+  it('throws "Invalid token" when jwtVerify rejects (expired, bad sig, wrong issuer, etc.)', async () => {
+    mockJwtVerify.mockRejectedValue(new Error('JWTExpired'));
+    await expect(makeProvider().verifyToken('bad-token')).rejects.toThrow('Invalid token');
+  });
+
+  it('throws "Invalid token" when payload has no sub claim', async () => {
+    mockJwtVerify.mockResolvedValue({ payload: { email: 'x@y.com' } });
+    await expect(makeProvider().verifyToken('no-sub-token')).rejects.toThrow('Invalid token');
+  });
+
+  it('passes the raw token string to jwtVerify', async () => {
+    mockJwtVerify.mockResolvedValue({ payload: { sub: 'u', email: 'u@u.com' } });
+    await makeProvider().verifyToken('my-token-abc');
+    expect(mockJwtVerify).toHaveBeenCalledWith('my-token-abc', mockJwkSet, expect.any(Object));
   });
 });

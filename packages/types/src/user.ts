@@ -13,6 +13,7 @@ export interface AuthUser {
   id: string;
   supabaseId: string;
   email: string;
+  role?: string;
 }
 
 export interface ModuleProgressItem {
