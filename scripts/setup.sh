@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # First-time project setup. Run this once after cloning.
-# What it does: checks prereqs → installs deps → creates .env → starts Docker → migrates DB.
+# What it does: checks prereqs → installs deps → creates .env.dev → starts Docker → migrates DB.
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -42,20 +42,20 @@ ok "Dependencies installed"
 
 # ── Environment file ──────────────────────────────────────────────────────────
 step "Environment configuration"
-if [[ -f .env ]]; then
-  ok ".env already exists (skipping)"
+if [[ -f .env.dev ]]; then
+  ok ".env.dev already exists (skipping)"
 else
-  cp .env.example .env
-  ok ".env created from .env.example"
+  cp .env.example .env.dev
+  ok ".env.dev created from .env.example"
   echo
-  warn "You must fill in these values in .env before running the app:"
+  warn "Review these values in .env.dev before running the app:"
   info "${BOLD}SUPABASE_URL${NC}             → Supabase project URL"
-  info "${BOLD}SUPABASE_ANON_KEY${NC}        → Supabase anon/public key"
-  info "${BOLD}SUPABASE_SERVICE_ROLE_KEY${NC} → Supabase service role key"
-  info "${BOLD}SUPABASE_JWT_SECRET${NC}      → Supabase JWT secret"
+  info "${BOLD}SUPABASE_PUBLISHABLE_KEY${NC} → Supabase publishable key"
+  info "${BOLD}SUPABASE_SECRET_KEY${NC}      → Supabase secret key"
   info "${BOLD}OPENAI_API_KEY${NC}           → OpenAI API key"
   info ""
   info "All available at: Supabase dashboard → Settings → API"
+  info ".env.prod is not created automatically; populate it manually."
 fi
 
 # ── Docker infra ──────────────────────────────────────────────────────────────
@@ -77,7 +77,7 @@ done
 
 # ── Migrate ───────────────────────────────────────────────────────────────────
 step "Running database migrations"
-pnpm --filter @autodidact/db db:migrate
+dotenv -e .env.dev -- ./scripts/migrate.sh
 ok "Migrations applied"
 
 # ── Build ─────────────────────────────────────────────────────────────────────
@@ -90,16 +90,17 @@ echo
 echo -e "${GREEN}${BOLD}Setup complete!${NC}"
 echo "────────────────────────────────────────"
 echo
-if grep -q 'SUPABASE_URL=$\|SUPABASE_URL=""' .env 2>/dev/null; then
-  warn "Remember to fill in .env with your Supabase and OpenAI credentials."
+if grep -q 'SUPABASE_URL=$\|SUPABASE_URL=""' .env.dev 2>/dev/null; then
+  warn "Remember to fill in .env.dev with your Supabase and OpenAI credentials."
   echo
 fi
 echo "Next steps:"
-info "1. Fill in .env (Supabase + OpenAI keys) if you haven't already"
-info "2. Fill in apps/mobile/app.json → extra.supabaseUrl and supabaseAnonKey"
-info "3. In Supabase SQL Editor, run the user-sync trigger (see docs/architecture/data-model.md)"
-info "4. Create a test user in Supabase dashboard → Authentication → Users"
+info "1. Review .env.dev and fill in any missing Supabase + OpenAI keys"
+info "2. Create .env.prod manually when you need production database access"
+info "3. Fill in apps/mobile/app.json → extra.supabaseUrl and supabaseAnonKey"
+info "4. In Supabase SQL Editor, run the user-sync trigger (see docs/architecture/data-model.md)"
+info "5. Create a test user in Supabase dashboard → Authentication → Users"
 info ""
 info "Then start the app:"
-info "  ./scripts/dev.sh        ← backend services"
-info "  ./scripts/mobile.sh     ← mobile app (separate terminal)"
+info "  pnpm dev               ← backend services"
+info "  ./scripts/mobile.sh    ← mobile app (separate terminal)"

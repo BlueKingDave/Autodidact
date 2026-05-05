@@ -16,7 +16,7 @@ ok()   { echo -e "${GREEN}✓ $*${NC}"; }
 warn() { echo -e "${YELLOW}⚠ $*${NC}"; }
 die()  { echo -e "${RED}✗ $*${NC}"; exit 1; }
 
-[[ -f .env ]] || die ".env not found."
+[[ -n "${DATABASE_URL:-}" ]] || die "DATABASE_URL not set. Run: pnpm db:generate:dev"
 
 step "Generating migration from schema changes"
 pnpm --filter @autodidact/db db:generate
@@ -27,5 +27,5 @@ warn "Review the generated SQL carefully before applying or committing."
 echo
 echo "Next steps:"
 echo "  1. Inspect the new .sql file in packages/db/migrations/"
-echo "  2. Run ./scripts/migrate.sh to apply it locally"
+echo "  2. Run pnpm migrate:dev to apply it locally"
 echo "  3. Commit both the schema change and the migration file together"

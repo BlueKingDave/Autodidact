@@ -27,14 +27,18 @@
       "bundler": "metro",
       "output": "static"
     },
-    "plugins": ["expo-router", "expo-secure-store"],
+    "plugins": [
+      "expo-router",
+      "expo-secure-store",
+      "expo-font"
+    ],
     "experiments": {
       "typedRoutes": true
     },
     "extra": {
       "apiBaseUrl": "http://localhost:3000/v1",
-      "supabaseUrl": "",
-      "supabasePublishableKey": ""
+      "supabaseUrl": "https://cbzdsoojfhpsexuyeyxt.supabase.co",
+      "supabasePublishableKey": "sb_publishable_4gQJJhMvmf_jvbbKVTRdCQ_INqqcIdH"
     }
   }
 }

@@ -16,6 +16,8 @@ out/
 
 # Environment
 .env
+.env.dev
+.env.prod
 .env.local
 .env.*.local
 
@@ -55,6 +57,9 @@ infra/**/terraform.tfvars
 
 # EAS / Expo
 .expo-shared/
+
+# Generated architecture graphs
+docs/architecture/graphs/*.svg
 
 # GitHub Actions workflows — the GitHub App token used by Claude Code lacks the
 # `workflows` permission scope required to push these files. They live on disk

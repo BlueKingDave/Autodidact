@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 # Run pending database migrations against the database in DATABASE_URL.
+# For local Docker databases, applies docker/dev-db-init.sql first (extensions + auth stubs).
 # Works for both local (Docker Postgres) and production (Supabase) if DATABASE_URL is set.
 set -euo pipefail
 
@@ -13,15 +14,16 @@ step() { echo -e "\n${CYAN}${BOLD}▶ $*${NC}"; }
 ok()   { echo -e "${GREEN}✓ $*${NC}"; }
 die()  { echo -e "${RED}✗ $*${NC}"; exit 1; }
 
-[[ -f .env ]] || die ".env not found. Run ./scripts/setup.sh first."
+[[ -n "${DATABASE_URL:-}" ]] || die "DATABASE_URL is not set in the environment"
 
-# Source DATABASE_URL from .env if not already set in environment
-if [[ -z "${DATABASE_URL:-}" ]]; then
-  DATABASE_URL=$(grep '^DATABASE_URL=' .env | cut -d= -f2- | tr -d '"' | tr -d "'")
-  export DATABASE_URL
+# Local Docker Postgres does not have Supabase's auth schema.
+# Apply dev-db-init.sql (extensions + auth stubs) so RLS migrations compile.
+if [[ "${DATABASE_URL}" == *"localhost"* ]] || [[ "${DATABASE_URL}" == *"127.0.0.1"* ]]; then
+  step "Applying dev DB setup (local only)"
+  docker compose exec -T postgres psql -U postgres -d autodidact \
+    < "$ROOT/docker/dev-db-init.sql"
+  ok "Dev setup applied"
 fi
-
-[[ -n "${DATABASE_URL:-}" ]] || die "DATABASE_URL is not set in .env"
 
 step "Running migrations against: ${DATABASE_URL%%@*}@***"
 pnpm --filter @autodidact/db db:migrate

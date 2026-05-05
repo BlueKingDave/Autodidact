@@ -7,7 +7,7 @@ import { useAuthStore } from '../stores/auth.store';
 
 export function useSSE(sessionId: string, courseId: string) {
   const queryClient = useQueryClient();
-  const token = useAuthStore((s) => s.token);
+  const token = useAuthStore((s) => s.accessToken);
   const { addUserMessage, appendStreamToken, finalizeStreamMessage } = useChatStore();
 
   const send = useCallback(

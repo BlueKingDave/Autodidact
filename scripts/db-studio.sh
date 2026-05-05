@@ -11,8 +11,7 @@ CYAN='\033[0;36m'; BOLD='\033[1m'; YELLOW='\033[1;33m'; RED='\033[0;31m'; NC='\0
 
 die() { echo -e "${RED}✗ $*${NC}"; exit 1; }
 
-[[ -f .env ]] || die ".env not found."
-docker info &>/dev/null 2>&1 || die "Docker is not running."
+[[ -n "${DATABASE_URL:-}" ]] || die "DATABASE_URL not set. Run: pnpm db:studio:dev or pnpm db:studio:prod"
 
 echo -e "${CYAN}${BOLD}▶ Opening Drizzle Studio${NC}"
 echo -e "${YELLOW}  Opens at https://local.drizzle.studio${NC}"

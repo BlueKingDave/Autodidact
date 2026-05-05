@@ -19,7 +19,7 @@ die()   { echo -e "${RED}✗ $*${NC}"; exit 1; }
 # ── Pre-flight checks ─────────────────────────────────────────────────────────
 step "Pre-flight checks"
 
-[[ -f .env ]] || die ".env not found. Run ./scripts/setup.sh first."
+[[ -n "${DATABASE_URL:-}" ]] || die "DATABASE_URL not set. Run: pnpm dev"
 
 command -v docker &>/dev/null || die "docker not found. Install Docker Desktop."
 command -v pnpm   &>/dev/null || die "pnpm not found. Run: npm install -g pnpm"
@@ -51,7 +51,7 @@ ok "Build complete"
 
 # ── Migrate ───────────────────────────────────────────────────────────────────
 step "Running database migrations"
-pnpm --filter @autodidact/db db:migrate
+pnpm migrate:dev
 ok "Migrations applied"
 
 # ── Start services ────────────────────────────────────────────────────────────

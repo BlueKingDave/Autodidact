@@ -9,6 +9,7 @@ SQL migration files managed by Drizzle Kit. Applied sequentially against the dat
 | `0001_initial.sql` | Creates all tables, enum types, and enables the `vector` extension |
 | `0002_indexes.sql` | Adds performance indexes (FK columns, status columns, HNSW vector index) |
 | `0003_rls.sql` | Row Level Security policies restricting user data access |
+| `0004_rls_fixes.sql` | Enables RLS on `courses`/`modules`; rewrites all policies with `(SELECT auth.fn())` to prevent per-row re-evaluation; adds missing FK indexes |
 
 ---
 
@@ -46,7 +47,7 @@ The API and Worker services connect with the **service role key**, which bypasse
 
 ```bash
 # Edit the relevant table file in packages/db/src/schema/
-pnpm --filter @autodidact/db db:generate
+pnpm db:generate:dev
 # Review the generated SQL in migrations/
 git add packages/db/migrations/
 ```
@@ -54,15 +55,19 @@ git add packages/db/migrations/
 ### Apply migrations
 
 ```bash
-# Development (runs against DATABASE_URL in .env)
-pnpm --filter @autodidact/db db:migrate
+# Development
+pnpm migrate:dev
+
+# Production
+pnpm migrate:prod
 
 # CI/CD applies migrations before deploying new service images
 ```
 
 ### Configuration
 
-`drizzle.config.ts` in the package root:
+`drizzle.config.ts` in the package root reads `DATABASE_URL` from `process.env`. Supported local workflows inject it via root `dotenv-cli` wrappers:
+
 ```typescript
 {
   dialect: 'postgresql',
@@ -71,6 +76,14 @@ pnpm --filter @autodidact/db db:migrate
   dbCredentials: { url: process.env.DATABASE_URL }
 }
 ```
+
+**`DATABASE_URL` must use the Supabase transaction-mode pooler** — the direct host (`db.xxx.supabase.co:5432`) is IPv6-only and unreachable from WSL2:
+
+```
+postgresql://postgres.[ref]:[password]@aws-1-[region].pooler.supabase.com:6543/postgres
+```
+
+Find the exact URL in Supabase dashboard → Project Settings → Database → Connection string → **Transaction pooler**.
 
 ---
 

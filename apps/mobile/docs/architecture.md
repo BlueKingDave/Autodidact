@@ -30,7 +30,7 @@ Mobile  →  services/api  →  Supabase (DB)
 2. Supabase returns an `access_token` (JWT).
 3. The token is stored in `auth.store` (persisted to device SecureStore).
 4. Every `apiFetch` call attaches it as `Authorization: Bearer <token>`.
-5. A 401 response from `services/api` calls `clearSession()`, which triggers the auth guard to redirect to sign-in.
+5. A 401 response from `services/api` triggers a silent token refresh via `supabase.auth.refreshSession()`. If successful, `apiFetch` retries the request with the new token transparently. If the refresh fails, `clearSession()` is called — the auth guard redirects to sign-in.
 
 ## Key decisions
 

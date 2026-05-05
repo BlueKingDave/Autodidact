@@ -1,6 +1,6 @@
 -- HNSW index for fast approximate nearest-neighbour search on course embeddings
--- Only created after embeddings are populated; CONCURRENTLY avoids table lock
-CREATE INDEX CONCURRENTLY IF NOT EXISTS courses_topic_embedding_idx
+-- Note: CONCURRENTLY is incompatible with drizzle-kit's transactional migration runner
+CREATE INDEX IF NOT EXISTS courses_topic_embedding_idx
   ON courses USING hnsw (topic_embedding vector_cosine_ops)
   WITH (m = 16, ef_construction = 64);
 

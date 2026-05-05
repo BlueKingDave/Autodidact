@@ -17,13 +17,14 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "drizzle-orm": "^0.38.0",
     "@supabase/supabase-js": "^2.46.0",
+    "drizzle-orm": "^0.38.0",
     "pg": "^8.13.0"
   },
   "devDependencies": {
     "@autodidact/config": "workspace:*",
     "@autodidact/types": "workspace:*",
+    "@types/node": "^22.0.0",
     "@types/pg": "^8.11.0",
     "@vitest/coverage-v8": "^2.1.0",
     "drizzle-kit": "^0.29.0",

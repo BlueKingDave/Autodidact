@@ -5,16 +5,16 @@
 All REST calls go through `src/api/client.ts:apiFetch`, which:
 
 - Reads the base URL from `app.json` `extra.apiBaseUrl` (falls back to `http://localhost:3000/v1`).
-- Reads the JWT from `auth.store.getState().token` (non-reactive, safe to call outside React).
+- Reads the JWT from `auth.store.getState().accessToken` (non-reactive, safe to call outside React).
 - Attaches `Authorization: Bearer <token>` on every request.
-- On a 401 response, calls `clearSession()` — the auth guard in `_layout.tsx` then redirects to sign-in.
+- On a 401 response: attempts a Supabase session refresh (`supabase.auth.refreshSession()`). If successful, calls `setSession(newAccessToken, newRefreshToken)` and retries the original request transparently. If the refresh fails, calls `clearSession()` — the auth guard in `_layout.tsx` then redirects to sign-in.
 
 React Query hooks live in `src/api/`:
 
 | File | Hooks |
 |------|-------|
-| `courses.ts` | `useCourses`, `useCourse`, `useJobStatus`, `useCreateCourse` |
-| `progress.ts` | `useCourseProgress` |
+| `courses.ts` | `useUserCourses`, `useCourse`, `useJobStatus`, `useCreateCourse`, `useEnrollCourse` |
+| `progress.ts` | `useProgress` |
 
 Global defaults: `staleTime: 30_000`, `retry: 1`.
 
@@ -30,7 +30,7 @@ useSSE.send(content)
   → POST /chat/sessions/:id/stream
       onmessage { type: 'token' }         → useChatStore.appendStreamToken()
       onmessage { type: 'complete' }      → useChatStore.finalizeStreamMessage()
-                                          → queryClient.invalidateQueries(['progress'])
+                                          → queryClient.invalidateQueries(['progress', courseId])
       onmessage { type: 'error' }         → useChatStore.finalizeStreamMessage()
       onerror                             → useChatStore.finalizeStreamMessage()
 ```

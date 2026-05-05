@@ -22,7 +22,8 @@ DROP POLICY IF EXISTS "courses_select_public" ON courses;
 CREATE POLICY "courses_select_public" ON courses
   FOR SELECT USING (is_public = TRUE AND (SELECT auth.role()) = 'authenticated');
 
--- modules (new — readable when course is public and user is authenticated)
+-- modules
+DROP POLICY IF EXISTS "modules_select_public_course" ON modules;
 CREATE POLICY "modules_select_public_course" ON modules
   FOR SELECT USING (
     (SELECT auth.role()) = 'authenticated'

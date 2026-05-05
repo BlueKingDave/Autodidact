@@ -64,17 +64,17 @@ autodidact/
 # 1. Install dependencies
 pnpm install
 
-# 2. Copy and fill env vars
-cp .env.example .env
+# 2. Create local dev env vars
+cp .env.example .env.dev
 
-# 3. Start local infrastructure
-docker compose up -d
+# 3. Create .env.prod manually when you need production access
 
-# 4. Run database migrations
-pnpm --filter @autodidact/db db:migrate
-
-# 5. Start all services in dev mode
+# 4. Start all services in dev mode
 pnpm dev
+
+# 5. Run env-specific DB commands as needed
+pnpm migrate:dev
+pnpm db:studio:dev
 ```
 
 ## Provider Configuration
@@ -84,14 +84,14 @@ Provider selection is driven by environment variables — no code changes needed
 | Variable | Options | Default |
 |----------|---------|---------|
 | `LLM_PROVIDER` | `openai`, `anthropic` | `openai` |
-| `EMBEDDING_PROVIDER` | `openai`, `cohere` | `openai` |
+| `EMBEDDING_PROVIDER` | `openai` | `openai` |
 | `QUEUE_PROVIDER` | `bullmq` | `bullmq` |
 | `AUTH_PROVIDER` | `supabase` | `supabase` |
 | `CHECKPOINTER` | `memory`, `postgres` | `memory` |
 
 ## Documentation
 
-- [Architecture](docs/architecture.md)
+- [Architecture](docs/architecture/overview.md)
 - [Stack decisions](docs/stack.md)
 - [Product vision](docs/product.md)
 - [Roadmap](docs/roadmap.md)

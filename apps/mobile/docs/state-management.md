@@ -10,16 +10,23 @@ Persisted to device **SecureStore** via the Zustand `persist` middleware.
 
 | Field | Type | Purpose |
 |-------|------|---------|
-| `token` | `string \| null` | Supabase JWT. Presence determines auth state. |
+| `accessToken` | `string \| null` | Supabase access JWT. Presence determines auth state. |
+| `refreshToken` | `string \| null` | Supabase refresh token. Used by `apiFetch` to silently refresh expired access tokens. |
 | `user` | `UserProfile \| null` | Profile data set after sign-in. |
 
-Actions: `setToken`, `setUser`, `clearSession` (nulls both fields).
+Actions:
+
+| Action | Signature | Effect |
+|--------|-----------|--------|
+| `setSession` | `(accessToken, refreshToken)` | Stores both tokens (called on sign-in and on silent token refresh) |
+| `setUser` | `(user)` | Stores profile data |
+| `clearSession` | `()` | Nulls all three fields |
 
 The store is read in three places outside React components:
 
-- `app/_layout.tsx` — auth guard watches `token` to redirect between route groups.
-- `src/api/client.ts` — `apiFetch` calls `getState().token` to attach the auth header.
-- `src/hooks/useSSE.ts` — reads `token` to set the SSE request header.
+- `app/_layout.tsx` — auth guard watches `accessToken` to redirect between route groups; also calls `setSession` / `clearSession` in response to Supabase auth events.
+- `src/api/client.ts` — `apiFetch` calls `getState().accessToken` to attach the auth header; calls `getState().setSession()` after a successful token refresh.
+- `src/hooks/useSSE.ts` — reads `accessToken` via the React selector hook (`useAuthStore(s => s.accessToken)`) to set the SSE request header. Note: useSSE is a React hook so it uses the hook API, not `getState()`.
 
 ## chat.store
 
@@ -39,7 +46,7 @@ Actions:
 |--------|--------|
 | `addUserMessage(content)` | Appends a user message, sets `isStreaming: true`, clears `streamingContent` |
 | `appendStreamToken(token)` | Concatenates a new token onto `streamingContent` |
-| `finalizeStreamMessage()` | Moves `streamingContent` into `messages` as an assistant message, clears streaming state |
+| `finalizeStreamMessage()` | Moves `streamingContent` into `messages` as an assistant message, clears streaming state. No-op (just sets `isStreaming: false`) if `streamingContent` is empty. |
 | `setMessages(messages)` | Replaces the entire history (used on initial load) |
 | `clearMessages()` | Resets everything to empty |
 

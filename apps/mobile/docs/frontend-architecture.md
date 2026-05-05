@@ -33,10 +33,11 @@ TamaguiProvider (config + dark theme)
         └── Slot (rendered route)
 ```
 
-The auth guard runs inside `_layout.tsx` via two `useEffect` hooks:
+The auth guard runs inside `_layout.tsx` via three `useEffect` hooks:
 
-1. Supabase `onAuthStateChange` → writes token into `auth.store`.
-2. Watches `token` + `segments` → redirects between `(auth)` and `(app)` using `router.replace`.
+1. **Session restoration** (runs once on mount): if `accessToken` and `refreshToken` are in the store (persisted from a prior session), calls `supabase.auth.setSession()` to re-hydrate Supabase's in-memory session. This enables `autoRefreshToken` without requiring a full sign-in on app restart.
+2. **`onAuthStateChange` listener**: syncs Supabase auth events (token refresh, sign-out) into the store by calling `setSession` or `clearSession`.
+3. **Route guard**: watches `accessToken` + `segments` → redirects between `(auth)` and `(app)` using `router.replace`.
 
 `app/(app)/_layout.tsx` renders the tab bar. It reads Tamagui theme values via `useTheme()` to feed React Navigation's `screenOptions` with real hex values.
 

@@ -22,6 +22,8 @@ Sort by number, ascending.
 - ADR-001 — Monorepo with pnpm Workspaces + Turborepo — **Accepted**
 - ADR-002 — Supabase for Database and Authentication — **Accepted**
 - ADR-003 — Expo + React Native for Mobile — **Accepted**
+- ADR-005 — Fastify for the Agent Service — **Accepted**
+- ADR-006 — LangGraph for AI Conversation Orchestration — **Accepted**
 
 ## Conventions
 

@@ -1,5 +1,7 @@
 # @autodidact/mobile
 
+> Pair file: [`./CLAUDE.md`](./CLAUDE.md) — agent-binding rules, invariants, source-of-truth.
+
 React Native client for Autodidact — an AI-powered learning platform where users generate personalised courses and study through guided chat sessions with an AI tutor.
 
 ## Stack
@@ -25,7 +27,7 @@ pnpm --filter @autodidact/mobile android   # Android emulator
 pnpm --filter @autodidact/mobile typecheck # Type-check only (no test runner)
 ```
 
-`app.json` `extra` block must supply `supabaseUrl`, `supabaseAnonKey`, and `apiBaseUrl`.
+`app.json` `extra` block must supply `supabaseUrl`, `supabasePublishableKey`, and `apiBaseUrl`.
 
 ## Folder structure
 
@@ -52,7 +54,7 @@ apps/mobile/
 
 ## Deeper docs
 
-- [Architecture](docs/architecture.md) — monorepo position, external dependencies, auth flow
+- [Architecture](docs/architecture.md) — monorepo position, runtime dependencies, auth flow
 - [Frontend architecture](docs/frontend-architecture.md) — routing, screens, provider stack
 - [UI system](docs/ui-system.md) — design tokens, themes, component library
 - [Data flow](docs/data-flow.md) — REST, SSE streaming, React Query

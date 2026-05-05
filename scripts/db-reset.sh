@@ -15,7 +15,8 @@ ok()    { echo -e "${GREEN}✓ $*${NC}"; }
 die()   { echo -e "${RED}✗ $*${NC}"; exit 1; }
 
 # Safety: only allow against the local Docker DB
-DB_URL=$(grep '^DATABASE_URL=' .env 2>/dev/null | cut -d= -f2- | tr -d '"' | tr -d "'" || echo "")
+DB_URL="${DATABASE_URL:-}"
+[[ -n "$DB_URL" ]] || die "DATABASE_URL not set. Run: pnpm db:reset:dev"
 if [[ "$DB_URL" != *"localhost"* ]] && [[ "$DB_URL" != *"127.0.0.1"* ]]; then
   die "db-reset only works against localhost databases.\nDetected: $DB_URL\nAborting to protect production data."
 fi
@@ -42,13 +43,8 @@ docker compose exec -T postgres psql -U postgres -c "DROP DATABASE IF EXISTS aut
 docker compose exec -T postgres psql -U postgres -c "CREATE DATABASE autodidact;" &>/dev/null
 ok "Database recreated"
 
-step "Restoring extensions via init script"
-docker compose exec -T postgres psql -U postgres -d autodidact \
-  -c "CREATE EXTENSION IF NOT EXISTS vector; CREATE EXTENSION IF NOT EXISTS \"uuid-ossp\";" &>/dev/null
-ok "Extensions installed"
-
-step "Running all migrations"
-pnpm --filter @autodidact/db db:migrate
+step "Running migrations"
+"$SCRIPT_DIR/migrate.sh"
 ok "Migrations applied"
 
 echo -e "\n${GREEN}${BOLD}Local database reset complete.${NC}"
