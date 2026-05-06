@@ -151,3 +151,38 @@ When completing a task, mention:
 2. What tests were added or updated (or why none were needed)
 3. What docs were read
 4. Whether docs were updated, and if not, why
+
+<!-- code-review-graph MCP tools -->
+## MCP Tools: code-review-graph
+
+The graph is the **structural navigation layer** — it answers where code lives, what
+calls what, and what a change will break. It complements the doc layer (READMEs +
+nested CLAUDE.md + ADRs), which owns rules, invariants, and context.
+
+**Route by question type:**
+
+| Question | Use |
+|----------|-----|
+| Why was X built this way? What rules apply here? | Docs: README → nested CLAUDE.md → ADRs |
+| Where is X implemented? What calls it? | Graph: `semantic_search_nodes`, `query_graph` |
+| What will break if I change X? | Graph: `get_impact_radius`, `get_affected_flows` |
+| Is X covered by tests? | Graph: `query_graph` pattern="tests_for" |
+| Reviewing a diff | Graph: `detect_changes` + `get_review_context` |
+| Broad boundary map | Graph: `get_architecture_overview`, then architecture docs |
+
+Fall back to Grep/Glob/Read only when neither layer answers the question.
+
+### Key tools
+
+| Tool | Use when |
+|------|----------|
+| `semantic_search_nodes` | Finding a function or type by name/keyword |
+| `query_graph` | Tracing callers, callees, imports, or tests |
+| `get_impact_radius` | Understanding blast radius before a change |
+| `get_affected_flows` | Finding which execution paths are impacted |
+| `detect_changes` | Code review — risk-scored change analysis |
+| `get_review_context` | Fetching source snippets without reading full files |
+| `get_architecture_overview` | High-level community/boundary map |
+| `refactor_tool` | Planning renames, finding dead code |
+
+The graph auto-updates on file changes via hooks.

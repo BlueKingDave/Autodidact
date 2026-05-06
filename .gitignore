@@ -67,3 +67,5 @@ docs/architecture/graphs/*.svg
 # with the `workflow` scope:
 #   git add .github/workflows/ && git push
 .github/
+# Added by code-review-graph
+.code-review-graph/
