@@ -55,6 +55,10 @@ infra/**/terraform.tfvars
 # Git worktrees
 .worktrees/
 
+# Python virtual environment
+.venv/
+.envrc
+
 # EAS / Expo
 .expo-shared/
 
