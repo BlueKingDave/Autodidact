@@ -5,17 +5,31 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 // Mock @autodidact/db before importing CoursesService
 // ────────────────────────────────────────────────────────────────────────────
 
-const mockExecute = vi.fn();
-const mockReturning = vi.fn();
-const mockValues = vi.fn();
-const mockInsert = vi.fn();
-const mockSelect = vi.fn();
-const mockFrom = vi.fn();
-const mockWhere = vi.fn();
-const mockOrderBy = vi.fn();
-const mockOnConflictDoUpdate = vi.fn();
-const mockOnConflictDoNothing = vi.fn();
-const mockLimit = vi.fn();
+const {
+  mockExecute,
+  mockReturning,
+  mockValues,
+  mockInsert,
+  mockSelect,
+  mockFrom,
+  mockWhere,
+  mockOrderBy,
+  mockOnConflictDoUpdate,
+  mockOnConflictDoNothing,
+  mockLimit,
+} = vi.hoisted(() => ({
+  mockExecute: vi.fn(),
+  mockReturning: vi.fn(),
+  mockValues: vi.fn(),
+  mockInsert: vi.fn(),
+  mockSelect: vi.fn(),
+  mockFrom: vi.fn(),
+  mockWhere: vi.fn(),
+  mockOrderBy: vi.fn(),
+  mockOnConflictDoUpdate: vi.fn(),
+  mockOnConflictDoNothing: vi.fn(),
+  mockLimit: vi.fn(),
+}));
 
 vi.mock('@autodidact/db', () => ({
   getDb: vi.fn().mockReturnValue({

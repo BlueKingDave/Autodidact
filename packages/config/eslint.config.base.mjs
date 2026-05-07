@@ -13,6 +13,8 @@ export default [
       parserOptions: {
         ecmaVersion: 2022,
         sourceType: "module",
+        projectService: true,
+        tsconfigRootDir: process.cwd(),
       },
     },
     rules: {

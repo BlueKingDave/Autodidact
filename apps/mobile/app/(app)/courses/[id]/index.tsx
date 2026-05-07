@@ -3,7 +3,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { XStack, YStack, Spinner } from 'tamagui';
 import { useCourse } from '@/api/courses';
 import { useProgress } from '@/api/progress';
-import { Screen, Heading, AppText, Card, Badge, ProgressBar, PositionBadge } from '@/components';
+import { Screen, Heading, AppText, Card, ProgressBar, PositionBadge } from '@/components';
 import type { ModuleBlueprint } from '@autodidact/types';
 
 export default function CourseDetailScreen() {

@@ -112,10 +112,14 @@ terraform apply -var="project_id=YOUR_PROJECT"
 
 ## CI/CD Pipeline
 
-GitHub Actions handles the full deployment pipeline on push to `main`.
+GitHub Actions handles validation on pull requests and full deployment on push to `master`.
 
 ```
-push to main
+pull request / push to master
+  ├── lint + typecheck (all packages)
+  └── test (all packages)
+
+push to master / manual deploy dispatch
   ├── lint + typecheck (all packages)
   ├── test (all packages)
   ├── Docker build + push → Artifact Registry
@@ -127,6 +131,21 @@ push to main
 ```
 
 **Authentication**: Workload Identity Federation — GitHub Actions authenticates to GCP without service account key files. The federation is configured in Terraform and bound to the `autodidact-run` service account.
+
+Required GitHub repository variables:
+
+| Name | Purpose |
+|------|---------|
+| `GCP_PROJECT_ID` | GCP project that owns Artifact Registry and Cloud Run |
+| `GCP_REGION` | GCP region, defaults to `us-central1` if omitted |
+| `GCP_WORKLOAD_IDENTITY_PROVIDER` | Full Workload Identity Provider resource name |
+| `GCP_SERVICE_ACCOUNT` | Deploy service account email |
+
+Required GitHub environment secret for the `production` environment:
+
+| Name | Purpose |
+|------|---------|
+| `PROD_DATABASE_URL` | Production database URL used by Drizzle migrations |
 
 ---
 

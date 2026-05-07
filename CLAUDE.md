@@ -2,12 +2,71 @@
 
 > Planning, assumptions, and completion summaries scale with change size — trivial fixes don't need them.
 
+---
+
+## Project overview
+
+AI-powered learning platform. Three backend services plus an Expo mobile app in a pnpm + Turborepo monorepo.
+
+| Layer | Package | Role |
+|-------|---------|------|
+| Public HTTP | `services/api` | NestJS — auth, courses, chat proxy, progress |
+| AI runtime | `services/agent` | Fastify + LangGraph — all LLM and embedding calls (internal only, port 3001) |
+| Background | `services/worker` | BullMQ — course generation and embedding jobs (no HTTP) |
+| Client | `apps/mobile` | Expo React Native — the only UI |
+
+Shared packages: `packages/db` (Drizzle + pgvector), `packages/types`, `packages/schemas` (Zod), `packages/providers` (LLM/queue/auth abstractions), `packages/prompts`, `packages/observability` (pino + OTEL), `packages/config` (tsconfig, eslint, vitest bases).
+
+---
+
+## Commands
+
+```bash
+pnpm setup              # first-time: checks prereqs → installs deps → copies .env.example → .env.dev → starts Docker → migrates → builds
+pnpm dev                # full backend stack: starts Docker → builds → migrates → all services (reads .env.dev)
+pnpm mobile             # Expo dev server — run in a separate terminal while dev is running
+pnpm stop               # stops Docker infra (Postgres + Redis) only; Node services stop via Ctrl+C in their terminal
+
+pnpm build              # turbo build all packages and services
+pnpm typecheck          # type-check all packages (triggers a build first)
+pnpm lint               # lint all packages
+pnpm lint --fix         # lint and auto-fix violations
+pnpm test               # run all test suites (triggers a build first)
+pnpm test <filter>      # run tests for matching packages only (e.g. pnpm test api, pnpm test agent)
+pnpm clean              # remove all build artifacts
+
+pnpm migrate:dev        # run pending migrations against local DB (applies dev-db-init.sql auth stubs first for Docker)
+pnpm db:generate:dev    # generate a new migration from schema changes — review the SQL before committing
+pnpm db:studio:dev      # open Drizzle Studio at https://local.drizzle.studio
+pnpm db:reset:dev       # DESTRUCTIVE: wipe and recreate local DB, re-run all migrations from scratch (localhost only)
+```
+
+---
+
+## Environment
+
+Copy `.env.example` → `.env.dev` (`pnpm setup` does this). Minimum required to boot:
+
+| Var | Used by | Note |
+|-----|---------|------|
+| `DATABASE_URL` | api, agent, worker | WSL2: must be transaction pooler URL (port 6543) |
+| `REDIS_URL` | api, worker | BullMQ backend |
+| `SUPABASE_URL` | api | Supabase project URL |
+| `SUPABASE_PUBLISHABLE_KEY` | mobile | Also set in `apps/mobile/app.json` → `extra` |
+| `SUPABASE_SECRET_KEY` | packages/db | Admin client — never expose to clients |
+| `OPENAI_API_KEY` | agent | Default LLM and embedding provider |
+| `AGENT_SERVICE_URL` | api, worker | Default: `http://localhost:3001` |
+
+See `.env.example` for all vars and provider-swap options (`LLM_PROVIDER`, `CHECKPOINTER`, etc.).
+
+---
+
 ## Core engineering values
 
 Every code change must respect these:
 
 1. **Test what you change.** Add or update focused tests for new or changed behavior. If a test isn't practical, explain why and describe how you verified it manually.
-2. **Single source of truth.** Don't duplicate facts, config, schemas, business rules, or ownership info. Update the authoritative source; reference it from elsewhere.
+2. **Single source of truth.** Don't duplicate facts, config, schemas, business rules, or ownership info in code. Update the authoritative source; reference it from elsewhere. (Documentation reference content is exempt — see Authority: README vs CLAUDE.md.)
 3. **Modular design.** Isolated responsibilities, clear interfaces, small modules. Don't couple unrelated concerns to ship faster.
 4. **Simplicity first.** Write the minimum code that solves the problem. No speculative features, no abstractions for single-use code, no "configurability" that wasn't asked for. If you wrote 200 lines and it could be 50, rewrite it.
 5. **Surgical changes.** Touch only what the task requires. No drive-by cleanup of adjacent code, comments, or formatting. Match existing style — exception: if it violates an invariant stated in a nested `CLAUDE.md`, the invariant wins. Remove only dead code your changes created, not pre-existing orphans. Tests for code you're modifying count as part of the change, not cleanup.
@@ -39,6 +98,7 @@ Start with:
 2. Parent `README.md` files, up to 2 levels up
 3. Relevant `docs/architecture/` files if the change crosses boundaries
 4. Relevant ADRs if the change touches a durable decision
+5. Graph layer for structural navigation — locating implementations, tracing calls, assessing blast radius (see MCP Tools below)
 
 Do not guess project conventions when documentation exists.
 
@@ -92,7 +152,7 @@ Use nested `CLAUDE.md` files for:
 - source-of-truth declarations
 - anything an agent must always respect in that subtree
 
-Nested rules extend this root file.
+Nested rules extend this root file and narrow it within their subtree — a nested invariant is more specific than a root rule and wins within its scope.
 
 ---
 
@@ -152,37 +212,66 @@ When completing a task, mention:
 3. What docs were read
 4. Whether docs were updated, and if not, why
 
-<!-- code-review-graph MCP tools -->
+---
+
 ## MCP Tools: code-review-graph
 
-The graph is the **structural navigation layer** — it answers where code lives, what
-calls what, and what a change will break. It complements the doc layer (READMEs +
-nested CLAUDE.md + ADRs), which owns rules, invariants, and context.
+Structural knowledge graph (Tree-sitter + SQLite, MCP-exposed) tracking imports, calls, inheritance, tests, and execution flows. Use for code-structure questions before scanning files.
 
-**Route by question type:**
+Two complementary layers with distinct domains — neither substitutes for the other.
 
-| Question | Use |
-|----------|-----|
-| Why was X built this way? What rules apply here? | Docs: README → nested CLAUDE.md → ADRs |
-| Where is X implemented? What calls it? | Graph: `semantic_search_nodes`, `query_graph` |
-| What will break if I change X? | Graph: `get_impact_radius`, `get_affected_flows` |
-| Is X covered by tests? | Graph: `query_graph` pattern="tests_for" |
-| Reviewing a diff | Graph: `detect_changes` + `get_review_context` |
-| Broad boundary map | Graph: `get_architecture_overview`, then architecture docs |
+**Doc layer** (`CLAUDE.md` files, READMEs, `docs/architecture/`) owns **intent, rules, and decisions**: what invariants apply, why things were built a certain way, what tradeoffs were made.
 
-Fall back to Grep/Glob/Read only when neither layer answers the question.
+**Graph layer** (code-review-graph MCP tools) owns **structure and topology**: where code lives, what calls what, blast radius of a change. The graph carries no rules or intent — it can tell you *that* X calls Y, not *why*.
 
-### Key tools
+Most tasks need both: read relevant docs first to absorb rules and context, then use the graph for structural navigation.
 
-| Tool | Use when |
-|------|----------|
-| `semantic_search_nodes` | Finding a function or type by name/keyword |
-| `query_graph` | Tracing callers, callees, imports, or tests |
-| `get_impact_radius` | Understanding blast radius before a change |
-| `get_affected_flows` | Finding which execution paths are impacted |
-| `detect_changes` | Code review — risk-scored change analysis |
-| `get_review_context` | Fetching source snippets without reading full files |
-| `get_architecture_overview` | High-level community/boundary map |
-| `refactor_tool` | Planning renames, finding dead code |
+**What each layer answers:**
 
-The graph auto-updates on file changes via hooks.
+| Question | Layer | Where |
+|----------|-------|-------|
+| What invariants apply here? What must not be broken? | Doc | Nearest `CLAUDE.md` → parent `CLAUDE.md` |
+| Why was X built this way? What tradeoffs were made? | Doc | `docs/architecture/decisions/` (ADRs) |
+| How does the system work at a high level? | Doc | `docs/architecture/overview.md` |
+| Where is X implemented? | Graph | `semantic_search_nodes` |
+| What calls X? What does X depend on? | Graph | `query_graph` |
+| What will break if I change X? | Graph | `get_impact_radius`, `get_affected_flows` |
+| Is X covered by tests? | Graph | `query_graph` pattern="tests_for" |
+| Broad boundary map | Both | `get_architecture_overview` → `docs/architecture/` for depth |
+| Reviewing a diff | Both | Nearest `CLAUDE.md` for applicable invariants → `detect_changes` + `get_review_context` |
+
+Use Grep/Glob/Read as a fallback for **code** when the graph doesn't have the answer — not as a substitute for reading doc files directly.
+
+### Order of operations
+
+For non-trivial changes (extends Documentation-first and Before you code):
+
+1. **Docs first** — READMEs, ADRs, nearest `CLAUDE.md`.
+2. **Graph next** — start with `get_minimal_context` (~100 tokens), then drill in.
+3. **Source last** — read implementation only after the graph narrows where.
+
+The graph gives structure, not implementation. Read source for what code actually does, and for non-code files (configs, markdown, scripts).
+
+### Tools
+
+**Explore** — `get_minimal_context` (start here), `get_architecture_overview`, `list_communities` / `get_community`, `semantic_search_nodes`, `query_graph` (callers_of / callees_of / imports_of / tests_for), `traverse_graph`, `find_large_functions`
+
+**Analyze changes** — `detect_changes` (risk-scored diff), `get_review_context` (compact snippets), `get_impact_radius`, `get_affected_flows`, `list_flows` / `get_flow`
+
+**Architecture & quality** — `get_hub_nodes` (hotspots), `get_bridge_nodes` (chokepoints), `get_surprising_connections`, `get_knowledge_gaps`, `get_suggested_questions`
+
+**Refactor** — `refactor_tool` (preview), `apply_refactor_tool`
+
+**Document** — `generate_wiki` (drafts from community structure), `get_wiki_page`
+
+### Workflows
+
+- **Code review** (Surgical changes, v5): `detect_changes` → `get_impact_radius` → `get_review_context` → `query_graph` tests_for.
+- **Bug**: `semantic_search_nodes` → `query_graph` callers_of → `get_affected_flows` → read source.
+- **New feature** (Modular design, v3): `get_architecture_overview` → `list_communities` → `semantic_search_nodes` for patterns → mirror existing.
+- **Refactor** (Simplicity, v4): `refactor_tool` preview → `query_graph` callers_of → `get_impact_radius` → `apply_refactor_tool`.
+- **Doc pass** (Compounding rule): `get_architecture_overview` → `get_hub_nodes` → `get_knowledge_gaps` → `list_communities` → `generate_wiki` to draft.
+
+### Maintenance
+
+Hooks auto-update on edit/commit. If stale, run `code-review-graph status`; re-run install if hooks aren't firing.

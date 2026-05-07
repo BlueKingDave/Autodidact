@@ -65,11 +65,7 @@ infra/**/terraform.tfvars
 # Generated architecture graphs
 docs/architecture/graphs/*.svg
 
-# GitHub Actions workflows — the GitHub App token used by Claude Code lacks the
-# `workflows` permission scope required to push these files. They live on disk
-# at .github/workflows/ and must be pushed manually using a personal access token
-# with the `workflow` scope:
-#   git add .github/workflows/ && git push
-.github/
+# GitHub Actions workflow changes may require a personal access token with the
+# `workflow` scope when pushing to GitHub.
 # Added by code-review-graph
 .code-review-graph/

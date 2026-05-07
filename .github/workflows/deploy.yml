@@ -1,0 +1,110 @@
+name: Deploy
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - master
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+env:
+  GAR_LOCATION: ${{ vars.GCP_REGION || 'us-central1' }}
+  GAR_REPOSITORY: autodidact
+  PROJECT_ID: ${{ vars.GCP_PROJECT_ID }}
+
+jobs:
+  deploy:
+    name: Build, migrate, and deploy
+    runs-on: ubuntu-latest
+    environment: production
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9.12.3
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Typecheck
+        run: pnpm typecheck
+
+      - name: Test
+        run: pnpm test
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ vars.GCP_SERVICE_ACCOUNT }}
+
+      - name: Setup gcloud
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Configure Docker auth
+        run: gcloud auth configure-docker "${GAR_LOCATION}-docker.pkg.dev" --quiet
+
+      - name: Build and push images
+        run: |
+          set -euo pipefail
+
+          REGISTRY="${GAR_LOCATION}-docker.pkg.dev/${PROJECT_ID}/${GAR_REPOSITORY}"
+          SHA_TAG="${GITHUB_SHA}"
+
+          docker build -f services/api/Dockerfile -t "${REGISTRY}/api:${SHA_TAG}" -t "${REGISTRY}/api:latest" .
+          docker build -f services/agent/Dockerfile -t "${REGISTRY}/agent:${SHA_TAG}" -t "${REGISTRY}/agent:latest" .
+          docker build -f services/worker/Dockerfile -t "${REGISTRY}/worker:${SHA_TAG}" -t "${REGISTRY}/worker:latest" .
+
+          docker push "${REGISTRY}/api:${SHA_TAG}"
+          docker push "${REGISTRY}/api:latest"
+          docker push "${REGISTRY}/agent:${SHA_TAG}"
+          docker push "${REGISTRY}/agent:latest"
+          docker push "${REGISTRY}/worker:${SHA_TAG}"
+          docker push "${REGISTRY}/worker:latest"
+
+      - name: Run database migrations
+        env:
+          DATABASE_URL: ${{ secrets.PROD_DATABASE_URL }}
+        run: pnpm --filter @autodidact/db db:migrate
+
+      - name: Deploy Cloud Run services
+        run: |
+          set -euo pipefail
+
+          REGISTRY="${GAR_LOCATION}-docker.pkg.dev/${PROJECT_ID}/${GAR_REPOSITORY}"
+          SHA_TAG="${GITHUB_SHA}"
+
+          gcloud run deploy autodidact-api \
+            --image "${REGISTRY}/api:${SHA_TAG}" \
+            --region "${GAR_LOCATION}" \
+            --project "${PROJECT_ID}"
+
+          gcloud run deploy autodidact-agent \
+            --image "${REGISTRY}/agent:${SHA_TAG}" \
+            --region "${GAR_LOCATION}" \
+            --project "${PROJECT_ID}"
+
+          gcloud run deploy autodidact-worker \
+            --image "${REGISTRY}/worker:${SHA_TAG}" \
+            --region "${GAR_LOCATION}" \
+            --project "${PROJECT_ID}"

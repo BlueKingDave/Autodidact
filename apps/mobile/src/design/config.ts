@@ -37,6 +37,7 @@ export type AppConfig = typeof config;
 
 // Merge our config into Tamagui's module so all styled() calls are fully typed.
 declare module 'tamagui' {
+  // eslint-disable-next-line @typescript-eslint/no-empty-object-type
   interface TamaguiCustomConfig extends AppConfig {}
 }
 

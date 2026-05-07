@@ -19,9 +19,9 @@ export default function RootLayout() {
   // so that autoRefreshToken can kick in without requiring a full sign-in.
   useEffect(() => {
     if (accessToken && refreshToken) {
-      supabase.auth.setSession({ access_token: accessToken, refresh_token: refreshToken });
+      void supabase.auth.setSession({ access_token: accessToken, refresh_token: refreshToken });
     }
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, []);
 
   // Keep our store in sync with Supabase's session events (token refresh, sign-out).
   useEffect(() => {
