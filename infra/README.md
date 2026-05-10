@@ -80,3 +80,9 @@ terraform apply         # apply after reviewing plan
 - State is stored in GCS (`autodidact-terraform-state`) — never commit local `.tfstate` files
 - All environment variables in service definitions are Secret Manager secret names, not values — the `cloud-run-service` module resolves them via `secret_key_ref` at runtime
 - `min_instances = 1` on all services keeps them warm; setting to 0 will introduce cold start latency on first request
+
+## Key Decisions
+
+- [ADR-012 — Cloud hosting platform](../docs/architecture/ADRs/infra/ADR-012-cloud-hosting-platform.md)
+- [ADR-021 — Infrastructure as code](../docs/architecture/ADRs/infra/ADR-021-infrastructure-as-code.md)
+- [ADR-022 — CI/CD platform](../docs/architecture/ADRs/infra/ADR-022-cicd-platform.md)

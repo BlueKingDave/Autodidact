@@ -64,3 +64,7 @@ packages/observability/src/
 - `initTracer()` is a no-op when `OTEL_EXPORTER_OTLP_ENDPOINT` is unset — safe to call unconditionally in all environments.
 - In tests, mock pino-pretty to avoid spawning worker threads: `vi.mock('pino-pretty', () => ({ default: vi.fn(() => process.stdout) }))`.
 - `NODE_ENV !== 'production'` activates pino-pretty regardless of specific value — `'development'`, `'test'`, and `undefined` all produce pretty output in development.
+
+## Key Decisions
+
+- [ADR-017 — Observability stack](../../docs/architecture/ADRs/packages/observability/ADR-017-observability-stack.md) (pino + OpenTelemetry)

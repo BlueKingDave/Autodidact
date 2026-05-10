@@ -50,3 +50,11 @@ Drizzle ORM client, schema definitions, database migrations, and the custom pgve
 - Do not initialize `getDb()` at the top level of a service module — it runs before env vars are loaded.
 - Do not write raw `pg` queries in services for things Drizzle can express cleanly.
 - Do not add new columns to schema files without a corresponding migration — the migration is the deploy artifact.
+
+---
+
+## Key Decisions
+
+- [ADR-002 — Database platform](../../docs/architecture/ADRs/cross-cutting/ADR-002-database-platform.md) (Supabase Postgres)
+- [ADR-008 — ORM / data access layer](../../docs/architecture/ADRs/packages/db/ADR-008-orm-data-access.md) (Drizzle)
+- [ADR-010 — Vector search strategy](../../docs/architecture/ADRs/packages/db/ADR-010-vector-search-strategy.md) (pgvector)

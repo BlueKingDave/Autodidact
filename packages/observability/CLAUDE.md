@@ -49,3 +49,9 @@ Structured logging (pino) and OpenTelemetry trace initialization for all service
 - Do not create logger instances inside hot-path functions (per-request, per-message). Create once at module/service initialization and reuse.
 - Do not log sensitive data (tokens, passwords, PII) at any log level.
 - Do not call `initTracer()` multiple times in the same process — the SDK instance is module-level and calling it again is a no-op but wasteful.
+
+---
+
+## Key Decisions
+
+- [ADR-017 — Observability stack](../../docs/architecture/ADRs/packages/observability/ADR-017-observability-stack.md) (pino + OpenTelemetry)

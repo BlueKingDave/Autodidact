@@ -65,3 +65,12 @@ terraform init          # first time, or after provider/module changes
 terraform plan          # always review before applying
 terraform apply         # apply after reviewing plan output
 ```
+
+---
+
+## Key Decisions
+
+- [ADR-012 — Cloud hosting platform](../docs/architecture/ADRs/infra/ADR-012-cloud-hosting-platform.md) (GCP Cloud Run)
+- [ADR-021 — Infrastructure as code](../docs/architecture/ADRs/infra/ADR-021-infrastructure-as-code.md) (Terraform)
+- [ADR-022 — CI/CD platform](../docs/architecture/ADRs/infra/ADR-022-cicd-platform.md) (GitHub Actions)
+- [ADR-007 — Background job queue](../docs/architecture/ADRs/services/worker/ADR-007-background-job-queue.md) (Memorystore Redis — 🚩)

@@ -102,3 +102,9 @@ const testProvider = createLLMProvider({ llmProvider: 'openai', openaiApiKey: 't
 See also:
 - [Interfaces](src/interfaces/README.md)
 - [Implementations](src/implementations/README.md)
+
+## Key Decisions
+
+- [ADR-009 — External vendor abstraction](../../docs/architecture/ADRs/packages/providers/ADR-009-external-vendor-abstraction.md)
+- [ADR-006 — AI orchestration framework](../../docs/architecture/ADRs/services/agent/ADR-006-ai-orchestration-framework.md) (returns LangGraph types)
+- [ADR-020 — Authentication strategy](../../docs/architecture/ADRs/cross-cutting/ADR-020-authentication-strategy.md) (auth provider — 🚩)

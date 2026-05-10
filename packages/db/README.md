@@ -108,3 +108,9 @@ See also:
 - [Schema reference](src/schema/README.md)
 - [Migrations](migrations/README.md)
 - [Data model diagram](../../docs/architecture/data-model.md)
+
+## Key Decisions
+
+- [ADR-002 — Database platform](../../docs/architecture/ADRs/cross-cutting/ADR-002-database-platform.md)
+- [ADR-008 — ORM / data access layer](../../docs/architecture/ADRs/packages/db/ADR-008-orm-data-access.md)
+- [ADR-010 — Vector search strategy](../../docs/architecture/ADRs/packages/db/ADR-010-vector-search-strategy.md)
