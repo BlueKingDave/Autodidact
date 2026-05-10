@@ -1,73 +1,97 @@
-# ADR-000: <Short title of the decision>
+# ADR-NNN: <Decision area title>
 
 ## Status
 
-<!--
-One of: Proposed | Accepted | Deprecated | Superseded by ADR-XXX
+Proposed | Accepted | 🚩 Accepted with reconsideration flag | Superseded by ADR-NNN
 Date: YYYY-MM-DD
--->
 
-Accepted — 2026-05-01
+<!--
+If flagged, add a single one-line summary of the flag here, e.g.:
+🚩 Reconsideration flag: <better option> would fit better because <reason>; staying with <current> because <reason>; migration trigger: <event>.
+-->
 
 ## Context
 
-<!--
-What's the situation that forced a decision? What constraints, forces, or
-problems are at play? Write enough that someone reading this in 2 years,
-with no memory of the moment, understands why a choice had to be made.
+What architectural problem are we solving and why now? Include the **stack situation**:
+where this sits relative to other ADRs, and what it has to be compatible with. Enough
+that a reader two years from now, with no memory of the moment, understands why a
+choice had to be made.
 
-Include: technical constraints, business constraints, prior decisions
-this builds on, what we tried or considered before.
+## Non-goals
 
-Do NOT include the decision itself here.
--->
+This ADR does not decide:
+- <related but separate decision — point to the ADR that owns it>
+- <implementation detail handled elsewhere>
+- <out-of-scope concern that a reader might wrongly expect to be answered here>
+
+## Decision Drivers
+
+The criteria that matter for choosing among options, ordered by importance.
+Each driver names *why* it matters in our context, not in general.
+
+- <Driver> — <why it matters here>
+- <Driver> — <why it matters here>
+
+## Options Considered
+
+At least 3 options. Each gets neutral, equal treatment. No favoritism here —
+the favoring happens in Decision/Rationale. Pros and Cons must be concrete and
+verifiable, not slogans. The current in-use tool (if any) gets the same critical
+eye as the rejected ones.
+
+### Option A: <Name>
+**What it is:** 1 sentence.
+
+**Pros**
+- <real, specific strength>
+
+**Cons**
+- <real, specific weakness>
+
+### Option B: <Name>
+**What it is:** 1 sentence.
+
+**Pros**
+- ...
+
+**Cons**
+- ...
+
+### Option C: <Name>
+**What it is:** 1 sentence.
+
+**Pros**
+- ...
+
+**Cons**
+- ...
 
 ## Decision
 
-<!--
-What did we decide? State it plainly, in active voice.
-"We will use X." not "It might be good to consider X."
+**We chose: <Option>.**
 
-One paragraph is usually enough. If the decision has sub-parts, use a short list.
--->
+One sentence. Active voice. No hedging.
+
+## Rationale
+
+Why this option won given the drivers and our context. Name what we are sacrificing
+by picking it — an honest rationale acknowledges the loss.
+
+If first-principles analysis points to a different option as a better technical fit
+and we picked the current one for legacy / inertia / cost reasons, raise the
+🚩 reconsideration flag here in addition to Status:
+
+> 🚩 **Reconsideration flag:** <better option> would fit better because <reason>.
+> Staying with <current> because <reason>. Migration trigger: <specific event/condition>.
 
 ## Consequences
 
-<!--
-What becomes easier? What becomes harder? What are we now committed to?
-What are we explicitly accepting as a downside?
-
-Be honest about the tradeoffs. An ADR with only upsides is a sales pitch,
-not a decision record.
-
-Split into Positive / Negative / Neutral if helpful.
--->
-
 ### Positive
--
+- ...
 
 ### Negative
--
+- ...
 
-### Neutral
--
-
-## Alternatives considered
-
-<!--
-What else did we look at? Why did we reject each one?
-This is the section future-you will thank present-you for.
-
-Format: one short paragraph or bullet per alternative.
--->
-
--
-
-## References
-
-<!--
-Links to: related ADRs, design docs, issues/PRs, external articles, benchmarks.
-Optional but valuable.
--->
-
--
+### Follow-up decisions
+- <decisions this choice forces us to make next, possibly in other ADRs>
+- <future events that should make us revisit this ADR>

@@ -14,7 +14,7 @@
 - `roadmap.md` owns phase-by-phase delivery. Use `[x]` for completed items — do not delete them.
 - `stack.md` owns technology choices. Do not add tools here unless a decision was actually made.
 - Architecture docs belong in `architecture/`. Feature plans belong in `superpowers/`.
-- ADRs are in `architecture/decisions/`. Read their `CLAUDE.md` before touching them.
+- ADRs are in `architecture/ADRs/`. Read their `CLAUDE.md` before touching them.
 
 ---
 
@@ -26,7 +26,7 @@
 | What's been built / what's next? | `roadmap.md` |
 | Why was X technology chosen? | `stack.md` |
 | How does the system work? | `architecture/overview.md` |
-| Why was X architectural decision made? | `architecture/decisions/` |
+| Why was X architectural decision made? | `architecture/ADRs/` |
 | What are we building next? | `superpowers/plans/` |
 
 ---

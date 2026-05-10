@@ -14,7 +14,7 @@ This folder owns the living record of how the system is designed. Docs here desc
 - `data-model.md` must stay in sync with `packages/db/src/schema/`. The schema is source of truth; this doc explains it.
 - `infrastructure.md` must stay in sync with `infra/`. The Terraform is source of truth; this doc explains it.
 - C4 diagrams in `c4/` reflect current reality only. See [`c4/CLAUDE.md`](c4/CLAUDE.md).
-- ADRs in `decisions/` are append-only. See [`decisions/CLAUDE.md`](decisions/CLAUDE.md).
+- ADRs in `ADRs/` are append-only for decisions. See [`ADRs/CLAUDE.md`](ADRs/CLAUDE.md).
 
 ---
 
