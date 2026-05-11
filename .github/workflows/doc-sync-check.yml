@@ -1,0 +1,119 @@
+name: Doc Sync Check
+
+on:
+  pull_request:
+    types: [opened, synchronize, ready_for_review]
+
+jobs:
+  doc-sync:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+      id-token: write
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          prompt: |
+            REPO: ${{ github.repository }}
+            PR NUMBER: ${{ github.event.pull_request.number }}
+            PR TITLE: ${{ github.event.pull_request.title }}
+            PR AUTHOR: ${{ github.event.pull_request.user.login }}
+
+            You are performing a documentation-sync check for this PR. Your only job is
+            to determine whether documentation was updated alongside code changes. Do not
+            comment on code quality, style, bugs, security, test coverage, or anything
+            other than doc/code alignment.
+
+            ## Step 1 — Get the diff
+
+            Run: gh pr diff ${{ github.event.pull_request.number }}
+
+            ## Step 2 — Classify each changed file as doc-relevant or not
+
+            DOC-RELEVANT — flag these:
+            - New public functions, classes, exports, or module interfaces
+            - New CLI commands, flags, or configuration/environment variables
+            - Behavior changes to existing public APIs or service contracts
+            - New files or directories added under packages/ or services/
+            - New agent prompts, LangGraph nodes, or workflow steps
+            - Dependency additions that affect setup (e.g. new required env vars, new services)
+            - New or significantly changed GitHub Actions workflows
+
+            NOT doc-relevant — skip these silently:
+            - Typo fixes, comment edits, whitespace or formatting
+            - Internal refactors with no change to public surface
+            - Test-only changes (*.test.ts, *.spec.ts, __tests__/**)
+            - Dependency patch-version bumps (e.g. 1.2.3 → 1.2.4)
+            - Log or error message tweaks
+            - Build artifacts or CI config with no user-visible effect
+
+            When in doubt, do NOT flag. Over-flagging is the main failure mode here.
+
+            ## Step 3 — Identify which docs should track each relevant change
+
+            This repo has both README.md and CLAUDE.md at nearly every directory level.
+            For each doc-relevant changed file, identify:
+            - The nearest README.md and nearest CLAUDE.md by walking up the directory
+              tree from the changed file (stop at repo root)
+            - Root README.md and root CLAUDE.md for changes that are architecturally
+              significant (new service, new package, new env var, changed contracts)
+
+            Use the Read tool to inspect a doc's content if you need to verify whether
+            a section already existed before this PR.
+
+            ## Step 4 — Check whether the required docs were updated in this PR
+
+            The diff shows every changed file. A doc counts as updated if it appears in
+            the diff with meaningful new content — not just whitespace or a date bump.
+
+            ## Step 5 — Idempotency: find and replace any previous run's comment
+
+            Every comment posted by this workflow starts with <!-- doc-sync-check -->.
+            Before posting, check whether a previous comment already exists:
+
+            1. Find it:
+               gh api repos/${{ github.repository }}/issues/${{ github.event.pull_request.number }}/comments \
+                 --jq '.[] | select(.body | startswith("<!-- doc-sync-check -->")) | .id' \
+                 | head -1
+
+            2. If a non-empty ID is returned, update it in place:
+               gh api repos/${{ github.repository }}/issues/comments/<ID> \
+                 -X PATCH -F body='<comment body>'
+
+            3. If no ID is found, create a new comment:
+               gh pr comment ${{ github.event.pull_request.number }} --body '<comment body>'
+
+            Post exactly ONE comment. Never post multiple. Never post inline comments.
+
+            ## Step 6 — Output format
+
+            If gaps were found, post:
+
+            <!-- doc-sync-check -->
+            ## Doc Sync Check
+
+            The following documentation may need updating:
+
+            | Changed file | Doc to update | Reason |
+            |---|---|---|
+            | path/to/file.ts | services/api/README.md | One-sentence reason. |
+
+            _This comment updates automatically on each push._
+
+            If everything looks good, post:
+
+            <!-- doc-sync-check -->
+            ## Doc Sync Check
+
+            Docs look in sync with code changes ✓
+
+            _This comment updates automatically on each push._
+
+          claude_args: |
+            --allowedTools "Read,Bash(gh pr comment:*),Bash(gh pr diff:*),Bash(gh pr view:*),Bash(git diff:*),Bash(git log:*),Bash(git show:*),Bash(gh api repos:*)"
