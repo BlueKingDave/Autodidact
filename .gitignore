@@ -69,3 +69,4 @@ docs/architecture/graphs/*.svg
 # `workflow` scope when pushing to GitHub.
 # Added by code-review-graph
 .code-review-graph/
+.claude/worktrees/
