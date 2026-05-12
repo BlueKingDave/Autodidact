@@ -122,3 +122,9 @@ pnpm --filter @autodidact/worker test
 
 See also:
 - [Processors](src/processors/README.md)
+
+## Key Decisions
+
+- [ADR-007 — Background job queue](../../docs/architecture/ADRs/services/worker/ADR-007-background-job-queue.md) (BullMQ + Redis — 🚩)
+- [ADR-009 — External vendor abstraction](../../docs/architecture/ADRs/packages/providers/ADR-009-external-vendor-abstraction.md)
+- [ADR-008 — ORM / data access layer](../../docs/architecture/ADRs/packages/db/ADR-008-orm-data-access.md)

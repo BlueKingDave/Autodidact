@@ -102,3 +102,7 @@ return { blueprint: null, retryCount: state.retryCount + 1 };
 - **Schema ↔ type alignment**: Schemas in this package validate the same data shapes as the TypeScript types in `@autodidact/types`. If you change a type (e.g., add a required field to `ModuleBlueprint`), add the corresponding validation rule to `ModuleBlueprintSchema` and update the prompt in `@autodidact/prompts`.
 - **`moduleCount` default**: The default of 5 modules is set here, not in the frontend. If you change the default, the mobile app's UI will need a matching update to show the correct selected value.
 - **`CourseBlueprintSchema` is permissive on `id`**: `ModuleBlueprintSchema.id` is `z.string().optional()` because some LLM responses omit the `id` field. The database assigns its own UUIDs — the blueprint `id` field is not used after parsing.
+
+## Key Decisions
+
+- [ADR-016 — Runtime schema validation](../../docs/architecture/ADRs/packages/schemas/ADR-016-runtime-schema-validation.md) (Zod)

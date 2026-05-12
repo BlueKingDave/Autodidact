@@ -84,3 +84,12 @@ pnpm --filter @autodidact/agent build       # compile to dist/
 | POST | `/module-chat/stream` | Stream module-chat graph output via SSE |
 | POST | `/embeddings/text` | Generate a text embedding vector |
 | GET | `/health` | Liveness check; returns `{ status: "ok" }` |
+
+---
+
+## Key Decisions
+
+- [ADR-005 — AI agent server framework](../../docs/architecture/ADRs/services/agent/ADR-005-ai-agent-server-framework.md) (Fastify)
+- [ADR-006 — AI orchestration framework](../../docs/architecture/ADRs/services/agent/ADR-006-ai-orchestration-framework.md) (LangGraph)
+- [ADR-011 — Real-time streaming transport](../../docs/architecture/ADRs/services/agent/ADR-011-realtime-streaming-transport.md) (SSE)
+- [ADR-009 — External vendor abstraction](../../docs/architecture/ADRs/packages/providers/ADR-009-external-vendor-abstraction.md)

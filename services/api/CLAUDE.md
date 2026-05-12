@@ -80,3 +80,13 @@ pnpm --filter @autodidact/api test          # run tests (vitest)
 pnpm --filter @autodidact/api test:coverage # test with coverage report
 pnpm --filter @autodidact/api typecheck     # type-check without emitting
 ```
+
+---
+
+## Key Decisions
+
+- [ADR-004 — REST API framework](../../docs/architecture/ADRs/services/api/ADR-004-rest-api-framework.md) (NestJS)
+- [ADR-009 — External vendor abstraction](../../docs/architecture/ADRs/packages/providers/ADR-009-external-vendor-abstraction.md) (auth/queue providers consumed via NestJS DI)
+- [ADR-011 — Real-time streaming transport](../../docs/architecture/ADRs/services/agent/ADR-011-realtime-streaming-transport.md) (SSE — API proxies the agent stream)
+- [ADR-016 — Runtime schema validation](../../docs/architecture/ADRs/packages/schemas/ADR-016-runtime-schema-validation.md) (Zod via NestJS pipes)
+- [ADR-020 — Authentication strategy](../../docs/architecture/ADRs/cross-cutting/ADR-020-authentication-strategy.md) (Supabase Auth — 🚩)

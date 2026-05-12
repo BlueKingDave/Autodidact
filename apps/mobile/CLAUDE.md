@@ -189,3 +189,13 @@ pnpm --filter @autodidact/mobile typecheck  # Type-check only (no test runner)
 - [`apps/mobile/docs/ui-system.md`](./docs/ui-system.md) — design tokens, themes, component library
 - [`apps/mobile/docs/data-flow.md`](./docs/data-flow.md) — REST, SSE streaming, React Query patterns
 - [`apps/mobile/docs/state-management.md`](./docs/state-management.md) — Zustand stores, persistence patterns
+
+---
+
+## Key Decisions
+
+- [ADR-003 — Mobile application platform](../../docs/architecture/ADRs/apps/mobile/ADR-003-mobile-application-platform.md) (Expo + React Native)
+- [ADR-013 — Mobile UI system](../../docs/architecture/ADRs/apps/mobile/ADR-013-mobile-ui-system.md) (Tamagui — 🚩 reconsideration flag for NativeWind)
+- [ADR-014 — Mobile navigation](../../docs/architecture/ADRs/apps/mobile/ADR-014-mobile-navigation.md) (Expo Router)
+- [ADR-015 — Mobile state management](../../docs/architecture/ADRs/apps/mobile/ADR-015-mobile-state-management.md) (TanStack Query + Zustand)
+- [ADR-011 — Real-time streaming transport](../../docs/architecture/ADRs/services/agent/ADR-011-realtime-streaming-transport.md) (SSE — consumed by `useSSE`)

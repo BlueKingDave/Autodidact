@@ -12,7 +12,7 @@ This folder stores structured documents produced during feature development:
 - **Plans** (`plans/`) — step-by-step task lists created before coding begins, used to guide agentic workers through multi-step features.
 
 This folder is not responsible for:
-- Architectural decisions (→ [`../architecture/decisions/`](../architecture/decisions/))
+- Architectural decisions (→ [`../architecture/ADRs/`](../architecture/ADRs/))
 - Product vision (→ [`../product.md`](../product.md))
 - Roadmap tracking (→ [`../roadmap.md`](../roadmap.md))
 

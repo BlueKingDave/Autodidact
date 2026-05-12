@@ -132,3 +132,11 @@ See also:
 - [Module: Courses](src/modules/courses/README.md)
 - [Module: Chat](src/modules/chat/README.md)
 - [Module: Progress](src/modules/progress/README.md)
+
+## Key Decisions
+
+- [ADR-004 — REST API framework](../../docs/architecture/ADRs/services/api/ADR-004-rest-api-framework.md) (NestJS)
+- [ADR-009 — External vendor abstraction](../../docs/architecture/ADRs/packages/providers/ADR-009-external-vendor-abstraction.md)
+- [ADR-011 — Real-time streaming transport](../../docs/architecture/ADRs/services/agent/ADR-011-realtime-streaming-transport.md) (SSE proxy)
+- [ADR-016 — Runtime schema validation](../../docs/architecture/ADRs/packages/schemas/ADR-016-runtime-schema-validation.md)
+- [ADR-020 — Authentication strategy](../../docs/architecture/ADRs/cross-cutting/ADR-020-authentication-strategy.md) (🚩)

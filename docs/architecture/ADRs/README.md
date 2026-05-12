@@ -1,54 +1,91 @@
 # Architecture Decision Records
 
-This folder contains ADRs — durable records of architectural decisions for this repo.
+Durable records of architectural decisions for Autodidact.
 
-## What is an ADR?
+## What is an ADR here?
 
-An ADR captures a single decision: what we chose, why, what we rejected, and what
-we're now committed to. ADRs record *decisions*, not designs or how-tos.
+Each ADR frames an **architectural decision area** (e.g., "Database platform"),
+surveys multiple valid options neutrally, and concludes with a choice. ADRs are
+a thinking tool, not a checklist. See [CLAUDE.md](./CLAUDE.md) for the rules
+and the bar.
 
-For the rules on when and how to create one, see [CLAUDE.md](./CLAUDE.md).
-For the structure of an ADR, see [ADR-000-template.md](./ADR-000-template.md).
+## Folder layout
+
+```
+ADRs/
+├── ADR-000-ADRtemplate.md
+├── apps/        — apps/* decisions (mobile)
+├── services/    — services/* decisions (api, agent, worker)
+├── packages/    — packages/* decisions (db, providers, schemas, observability, ...)
+├── infra/       — hosting, IaC, CI/CD
+├── cross-cutting/ — decisions that span ≥2 areas
+└── _superseded/ — historical originals replaced by newer ADRs
+```
 
 ## Index
 
-<!--
-Keep this list in sync when adding, accepting, or superseding ADRs.
-Format: ADR-NNN — Title — Status
-Sort by number, ascending.
--->
+Sort within each section by ADR number.
 
-- ADR-000 — Template (not a real decision)
-- ADR-001 — Monorepo with pnpm Workspaces + Turborepo — **Accepted**
-- ADR-002 — Supabase for Database and Authentication — **Accepted**
-- ADR-003 — Expo + React Native for Mobile — **Accepted**
-- ADR-005 — Fastify for the Agent Service — **Accepted**
-- ADR-006 — LangGraph for AI Conversation Orchestration — **Accepted**
+### Cross-cutting
+- [ADR-001 — Monorepo & build orchestration](./cross-cutting/ADR-001-monorepo-build-orchestration.md)
+- [ADR-002 — Database platform](./cross-cutting/ADR-002-database-platform.md)
+- [ADR-018 — Testing strategy](./cross-cutting/ADR-018-testing-strategy.md)
+- [ADR-019 — Code quality tooling](./cross-cutting/ADR-019-code-quality-tooling.md)
+- [ADR-020 — Authentication strategy](./cross-cutting/ADR-020-authentication-strategy.md)
+
+### Apps — Mobile
+- [ADR-003 — Mobile application platform](./apps/mobile/ADR-003-mobile-application-platform.md)
+- [ADR-013 — Mobile UI system](./apps/mobile/ADR-013-mobile-ui-system.md)
+- [ADR-014 — Mobile navigation](./apps/mobile/ADR-014-mobile-navigation.md)
+- [ADR-015 — Mobile state management](./apps/mobile/ADR-015-mobile-state-management.md)
+
+### Services
+- [ADR-004 — REST API framework](./services/api/ADR-004-rest-api-framework.md)
+- [ADR-005 — AI agent server framework](./services/agent/ADR-005-ai-agent-server-framework.md)
+- [ADR-006 — AI orchestration framework](./services/agent/ADR-006-ai-orchestration-framework.md)
+- [ADR-011 — Real-time streaming transport](./services/agent/ADR-011-realtime-streaming-transport.md)
+- [ADR-007 — Background job queue](./services/worker/ADR-007-background-job-queue.md)
+
+### Packages
+- [ADR-008 — ORM / data access layer](./packages/db/ADR-008-orm-data-access.md)
+- [ADR-010 — Vector search strategy](./packages/db/ADR-010-vector-search-strategy.md)
+- [ADR-009 — External vendor abstraction](./packages/providers/ADR-009-external-vendor-abstraction.md)
+- [ADR-016 — Runtime schema validation](./packages/schemas/ADR-016-runtime-schema-validation.md)
+- [ADR-017 — Observability stack](./packages/observability/ADR-017-observability-stack.md)
+
+### Infrastructure
+- [ADR-012 — Cloud hosting platform](./infra/ADR-012-cloud-hosting-platform.md)
+- [ADR-021 — Infrastructure as code](./infra/ADR-021-infrastructure-as-code.md)
+- [ADR-022 — CI/CD platform](./infra/ADR-022-cicd-platform.md)
+
+## 🚩 Open reconsiderations
+
+ADRs whose honest analysis concluded that a *different* tool would be a better
+fit, but where we are staying with the current choice for legacy/inertia/cost
+reasons. Each entry names the trigger condition under which we should migrate.
+
+- [ADR-007 — Background job queue](./services/worker/ADR-007-background-job-queue.md): would-be-better → **GCP Cloud Tasks** (drops Memorystore Redis + the standalone worker service). Trigger: explicit infra-simplification sprint, or Memorystore costs becoming noticeable on the GCP bill.
+- [ADR-013 — Mobile UI system](./apps/mobile/ADR-013-mobile-ui-system.md): would-be-better → **NativeWind** (lighter, more idiomatic for our RN-only app; Tamagui's cross-platform compile-time win doesn't pay off without a web target). Trigger: planned UI refresh, sustained Tamagui RC churn, or measurable bundle-weight impact on launch.
+- [ADR-020 — Authentication strategy](./cross-cutting/ADR-020-authentication-strategy.md): would-be-better → **Better Auth** (TS-native, Drizzle-integrated, no vendor lock-in). Trigger: Supabase Auth incident >2h, MAU costs >$200/mo, custom-session feature need, or a planned auth refresh.
 
 ## Conventions
 
-**Filenames:** `ADR-NNN-kebab-case-slug.md` (e.g., `ADR-014-use-drizzle-over-prisma.md`).
-Numbers are zero-padded to 3 digits and never reused.
+**Filenames:** `ADR-NNN-decision-area-slug.md`. Numbers are global, zero-padded
+to 3 digits, never reused.
 
-**Status values:** `Proposed`, `Accepted`, `Deprecated`, `Superseded by ADR-NNN`.
+**Status values:** `Proposed`, `Accepted`, `🚩 Accepted with reconsideration flag`,
+`Deprecated`, `Superseded by ADR-NNN`.
 
-**Append-only:** ADRs are history. To change a decision, write a new ADR that
-supersedes the old one. Link both ways.
+**Append-only for decisions.** Documentation-quality improvements on accepted
+ADRs are allowed in-place; decision changes require a new superseding ADR. See
+[CLAUDE.md](./CLAUDE.md) for full rules.
 
-**Scope:** One decision per ADR. Cross-cutting designs go in `../` (architecture
-docs), not here.
-
-## How to add an ADR
-
-1. Copy `ADR-000-template.md` to `ADR-NNN-your-slug.md` using the next number.
-2. Fill in all sections. "Alternatives considered" is mandatory.
-3. Set Status to `Proposed` (or `Accepted` if already agreed).
-4. Add an entry to the Index above.
-5. If the decision affects a specific subsystem, add a one-line reference in
-   that subsystem's README under "Key Decisions."
+**Scope.** Decision-area ADRs, not per-tool. One architectural problem per ADR;
+multiple options compared neutrally; first-principles reasoning required.
 
 ## Related
 
 - [Architecture overview](../README.md)
-- Root [CLAUDE.md](../../../CLAUDE.md) — repo-wide rules
-- [ADR template](./ADR-000-template.md)
+- [Stack](../../stack.md) — links each tool to its decision-area ADR
+- [Template](./ADR-000-ADRtemplate.md)
+- Root [CLAUDE.md](../../../CLAUDE.md)

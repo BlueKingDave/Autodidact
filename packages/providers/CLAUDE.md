@@ -45,3 +45,12 @@ Provider interfaces, factory functions, and concrete implementations for all ext
 - Do not `new OpenAILLMProvider(...)` in service code — always go through `createLLMProvider()`.
 - Do not add vendor-specific API features (e.g., OpenAI function calling parameters) to an interface — generalize or add an escape hatch method, then document the decision.
 - Do not use `EMBEDDING_PROVIDER` env var for provider selection in `createEmbeddingProvider()` — the factory currently always returns OpenAI regardless of that var (only `openai` is implemented). Fix the factory if you add a second embedding provider.
+
+---
+
+## Key Decisions
+
+- [ADR-009 — External vendor abstraction](../../docs/architecture/ADRs/packages/providers/ADR-009-external-vendor-abstraction.md) (custom interfaces + factories)
+- [ADR-006 — AI orchestration framework](../../docs/architecture/ADRs/services/agent/ADR-006-ai-orchestration-framework.md) (LangGraph — shapes the LLM/checkpointer return types)
+- [ADR-007 — Background job queue](../../docs/architecture/ADRs/services/worker/ADR-007-background-job-queue.md) (BullMQ — shape of `IQueueProvider`)
+- [ADR-020 — Authentication strategy](../../docs/architecture/ADRs/cross-cutting/ADR-020-authentication-strategy.md) (Supabase Auth — shape of `IAuthProvider`)

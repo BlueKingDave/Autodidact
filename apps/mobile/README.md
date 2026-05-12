@@ -59,3 +59,11 @@ apps/mobile/
 - [UI system](docs/ui-system.md) — design tokens, themes, component library
 - [Data flow](docs/data-flow.md) — REST, SSE streaming, React Query
 - [State management](docs/state-management.md) — Zustand stores, persistence, patterns
+
+## Key Decisions
+
+- [ADR-003 — Mobile application platform](../../docs/architecture/ADRs/apps/mobile/ADR-003-mobile-application-platform.md)
+- [ADR-013 — Mobile UI system](../../docs/architecture/ADRs/apps/mobile/ADR-013-mobile-ui-system.md) (🚩)
+- [ADR-014 — Mobile navigation](../../docs/architecture/ADRs/apps/mobile/ADR-014-mobile-navigation.md)
+- [ADR-015 — Mobile state management](../../docs/architecture/ADRs/apps/mobile/ADR-015-mobile-state-management.md)
+- [ADR-011 — Real-time streaming transport](../../docs/architecture/ADRs/services/agent/ADR-011-realtime-streaming-transport.md)

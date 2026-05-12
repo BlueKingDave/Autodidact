@@ -77,3 +77,11 @@ pnpm --filter @autodidact/worker dev
 # Tests
 pnpm --filter @autodidact/worker test
 ```
+
+---
+
+## Key Decisions
+
+- [ADR-007 — Background job queue](../../docs/architecture/ADRs/services/worker/ADR-007-background-job-queue.md) (BullMQ + Redis — 🚩 reconsideration flag for Cloud Tasks)
+- [ADR-009 — External vendor abstraction](../../docs/architecture/ADRs/packages/providers/ADR-009-external-vendor-abstraction.md) (queue provider via factory)
+- [ADR-008 — ORM / data access layer](../../docs/architecture/ADRs/packages/db/ADR-008-orm-data-access.md) (Drizzle for course/module writes)

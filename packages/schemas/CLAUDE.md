@@ -44,3 +44,9 @@ Zod validation schemas for cross-service data contracts: API request bodies and 
 
 - Do not define a schema in a service controller or graph node if the same shape is already validated here — import instead.
 - Do not add business logic (e.g., cross-field dependencies, async validation) to these schemas. Keep them as pure structural validators.
+
+---
+
+## Key Decisions
+
+- [ADR-016 — Runtime schema validation](../../docs/architecture/ADRs/packages/schemas/ADR-016-runtime-schema-validation.md) (Zod)
