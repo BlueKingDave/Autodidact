@@ -38,23 +38,27 @@ Reference as `fontSize="$3"` (Tamagui numeric key) or use `AppText`/`Heading` wh
 ```
 components/
 ├── typography/
-│   ├── AppText.tsx      # Variant text: body | muted | caption | label | error
-│   └── Heading.tsx      # Semantic headings: h1 | h2
+│   ├── AppText.tsx        # Variant text: body | muted | caption | label | error
+│   └── Heading.tsx        # Semantic headings: h1 | h2
 ├── interactive/
-│   ├── Button.tsx       # Primary/secondary/ghost, size sm|md|lg
-│   ├── IconButton.tsx   # Icon-only pressable
-│   ├── Input.tsx        # Compound: label + StyledInput + error/helper text
-│   └── Chip.tsx         # Selectable tag
+│   ├── Button.tsx         # Primary/secondary/ghost, size sm|md|lg
+│   ├── IconButton.tsx     # Icon-only pressable
+│   ├── Input.tsx          # Compound: label + StyledInput + error/helper text
+│   └── Chip.tsx           # Selectable tag
 ├── display/
-│   ├── Card.tsx         # Pressable surface: default | ghost
-│   ├── Badge.tsx        # Status label: default | success | warning | danger
-│   ├── ProgressBar.tsx  # Horizontal fill bar (0–1 value)
-│   ├── ChatBubble.tsx   # User / assistant message bubble
-│   ├── EmptyState.tsx   # Icon + title + optional subtitle
-│   └── PositionBadge.tsx # Numbered position indicator
+│   ├── Card.tsx           # Pressable surface: default | elevated | ghost
+│   ├── Badge.tsx          # Status label: default | success | warning | danger
+│   ├── ProgressBar.tsx    # Animated horizontal fill bar (0–1 value)
+│   ├── ChatBubble.tsx     # User / assistant message bubble; renders inline markdown + timestamp
+│   ├── EmptyState.tsx     # Centred empty-list state; optional icon + CTA action
+│   ├── PositionBadge.tsx  # Numbered module step indicator
+│   ├── Skeleton.tsx       # SkeletonLine (text row) and SkeletonCard (card placeholder)
+│   ├── Toast.tsx          # Animated success/error/info notification pill
+│   └── ToastProvider.tsx  # Overlay renderer for active toasts (place in root layout)
 ├── layout/
-│   └── Screen.tsx       # Safe-area scroll container
-└── index.ts             # Barrel: all components re-exported from one path
+│   ├── Screen.tsx         # Safe-area scroll container
+│   └── ErrorBoundary.tsx  # React class error boundary with retry fallback
+└── index.ts               # Barrel: all components re-exported from one path
 ```
 
 Import everything from `@/components`.

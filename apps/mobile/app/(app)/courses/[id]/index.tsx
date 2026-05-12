@@ -1,28 +1,45 @@
-import { FlatList } from 'react-native';
+import { FlatList, RefreshControl } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { XStack, YStack, Spinner } from 'tamagui';
+import { useTheme, XStack, YStack } from 'tamagui';
 import { useCourse } from '@/api/courses';
 import { useProgress } from '@/api/progress';
-import { Screen, Heading, AppText, Card, ProgressBar, PositionBadge } from '@/components';
+import { Screen, Heading, AppText, Card, ProgressBar, PositionBadge, SkeletonLine, SkeletonCard } from '@/components';
 import type { ModuleBlueprint } from '@autodidact/types';
+
+function LoadingSkeleton() {
+  return (
+    <YStack gap="$3" paddingVertical="$1">
+      <SkeletonLine width="70%" height={32} />
+      <SkeletonLine width="100%" />
+      <SkeletonLine width="100%" height={6} />
+      <SkeletonCard />
+      <SkeletonCard />
+      <SkeletonCard />
+    </YStack>
+  );
+}
 
 export default function CourseDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
-  const { data: course, isLoading } = useCourse(id);
-  const { data: progress } = useProgress(id);
+  const theme = useTheme();
+  const { data: course, isLoading, isRefetching: courseRefetching, refetch: refetchCourse } = useCourse(id);
+  const { data: progress, isRefetching: progressRefetching, refetch: refetchProgress } = useProgress(id);
 
   const progressMap = new Map(progress?.map((p) => [p.moduleId, p]) ?? []);
   const completedCount = progress?.filter((p) => p.status === 'completed').length ?? 0;
   const totalCount = progress?.length ?? 0;
   const progressPct = totalCount > 0 ? completedCount / totalCount : 0;
 
+  const handleRefresh = () => {
+    void refetchCourse();
+    void refetchProgress();
+  };
+
   if (isLoading) {
     return (
       <Screen>
-        <YStack flex={1} alignItems="center" justifyContent="center">
-          <Spinner color="$primary" />
-        </YStack>
+        <LoadingSkeleton />
       </Screen>
     );
   }
@@ -35,6 +52,13 @@ export default function CourseDetailScreen() {
         data={(course.modules ?? []) as ModuleBlueprint[]}
         keyExtractor={(item) => item.id}
         contentContainerStyle={{ gap: 10, paddingVertical: 4 }}
+        refreshControl={
+          <RefreshControl
+            refreshing={courseRefetching || progressRefetching}
+            onRefresh={handleRefresh}
+            tintColor={theme.primary.get()}
+          />
+        }
         ListHeaderComponent={
           <YStack gap="$4" marginBottom="$4">
             <Heading size="h1">{course.title}</Heading>

@@ -1,11 +1,13 @@
 import { useState } from 'react';
 import { Alert } from 'react-native';
+import { useRouter } from 'expo-router';
 import { YStack } from 'tamagui';
 import { useAuthStore } from '@/stores/auth.store';
 import { supabase } from '@/lib/supabase';
 import { Screen, Heading, AppText, Input, Button } from '@/components';
 
 export default function SignInScreen() {
+  const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -57,6 +59,10 @@ export default function SignInScreen() {
           onPress={handleSignIn}
         >
           Sign In
+        </Button>
+
+        <Button variant="ghost" size="sm" onPress={() => router.push('/(auth)/sign-up')}>
+          Don't have an account? Sign up
         </Button>
       </YStack>
     </Screen>

@@ -11,6 +11,8 @@ Components that control page structure and safe area behaviour.
 
 **Screen** — wraps every screen. Handles SafeAreaView, background colour via `$bg`
 token, and optional ScrollView. Exists so screens don't repeat safe-area boilerplate.
+**ErrorBoundary** — React class component. Catches unhandled render errors and shows
+  a "Something went wrong" fallback with a retry button. Wraps `<Slot>` in `app/_layout.tsx`.
 
 ## typography/
 
@@ -46,4 +48,12 @@ Read-only visual components that present data.
 **PositionBadge** — circular module step indicator. Shows step number or ✓ when complete.
 **ChatBubble** — message bubble, user and assistant variants. Renders streaming
   cursor while `isStreaming` is true.
-**EmptyState** — centred message for lists with no data.
+**EmptyState** — centred message for lists with no data. Accepts optional `icon` (Ionicons
+  name) and `action` ({ label, onPress }) for a call-to-action button.
+**Skeleton / SkeletonLine / SkeletonCard** — static grey placeholder blocks for loading
+  states. Use `SkeletonLine` for text rows, `SkeletonCard` for card-sized placeholders.
+**Toast** — animated notification pill (success/error/info). Auto-dismisses after 3 s.
+  Reads from `toast.store` and is rendered exclusively via `ToastProvider`.
+**ToastProvider** — absolutely positioned overlay that renders all active toasts from
+  `toast.store` with enter/exit animations. Placed in `app/_layout.tsx` as a sibling to
+  `<Slot>` so it floats above all screens.

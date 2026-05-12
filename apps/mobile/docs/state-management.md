@@ -50,6 +50,26 @@ Actions:
 | `setMessages(messages)` | Replaces the entire history (used on initial load) |
 | `clearMessages()` | Resets everything to empty |
 
+## toast.store
+
+`src/stores/toast.store.ts`
+
+**In-memory only** — not persisted. Cleared when the app restarts.
+
+| Field | Type | Purpose |
+|-------|------|---------|
+| `toasts` | `Toast[]` | Active notification queue. Each toast has `id`, `message`, `variant`. |
+
+Actions:
+
+| Action | Effect |
+|--------|--------|
+| `addToast(message, variant?)` | Appends a toast with a `uuidv4` id. Variant defaults to `'info'`. |
+| `removeToast(id)` | Removes a toast by id (called automatically after 3 s by `Toast.tsx`). |
+
+`useSSE` calls `useToastStore.getState().addToast(...)` after a module-complete SSE event.
+`ToastProvider` reads `toasts` via selector and renders them as an animated overlay.
+
 ## Patterns
 
 - **In React components:** use hooks (`useAuthStore(s => s.token)`) with selectors to avoid unnecessary re-renders.
