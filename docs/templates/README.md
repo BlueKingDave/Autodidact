@@ -6,7 +6,7 @@ Templates for consistent documentation across the project.
 
 ## Purpose
 
-These templates define the structure for two recurring documentation types used throughout `docs/` and across the codebase.
+These templates define the structure for recurring documentation types used throughout `docs/` and across the codebase.
 
 ---
 
@@ -20,6 +20,7 @@ These templates define the structure for two recurring documentation types used 
 
 | File | Use when |
 |---|---|
+| [CLAUDE.ROOT.template.md](CLAUDE.ROOT.template.md) | Creating the root `CLAUDE.md` for a new repository — captures the universal engineering values, documentation model, and agent workflow this project standardizes on |
 | [CLAUDE.nested.template.md](CLAUDE.nested.template.md) | Creating a `CLAUDE.md` inside any subfolder to give Claude folder-specific rules that extend the parent `CLAUDE.md` |
 | [README.template.md](README.template.md) | Creating a `README.md` for any new folder |
 
