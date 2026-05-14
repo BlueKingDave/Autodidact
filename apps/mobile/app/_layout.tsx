@@ -5,6 +5,7 @@ import { TamaguiProvider } from 'tamagui';
 import { useAuthStore } from '@/stores/auth.store';
 import { supabase } from '@/lib/supabase';
 import config from '@/design/config';
+import { ErrorBoundary, ToastProvider } from '@/components';
 
 const queryClient = new QueryClient({
   defaultOptions: { queries: { retry: 1, staleTime: 30_000 } },
@@ -47,7 +48,10 @@ export default function RootLayout() {
   return (
     <TamaguiProvider config={config} defaultTheme="dark">
       <QueryClientProvider client={queryClient}>
-        <Slot />
+        <ErrorBoundary>
+          <Slot />
+        </ErrorBoundary>
+        <ToastProvider />
       </QueryClientProvider>
     </TamaguiProvider>
   );

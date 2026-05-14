@@ -50,6 +50,7 @@ This subtree does NOT own:
 - `useSSE(sessionId, courseId)` ([`src/hooks/useSSE.ts`](./src/hooks/useSSE.ts))
   - Writes to: [`src/stores/chat.store.ts`](./src/stores/chat.store.ts) via `addUserMessage` (on send, optimistic), `appendStreamToken` (per token), `finalizeStreamMessage` (on complete/error)
   - Reads from: [`src/stores/auth.store.ts`](./src/stores/auth.store.ts) via hook selector (`useAuthStore(s => s.accessToken)`) — not `getState()`
+  - Fires: `useToastStore.getState().addToast(...)` on `complete` event (module-complete notification)
   - Invalidates: `['progress', courseId]` query on `complete` event
   - Used by: `app/(app)/courses/[id]/modules/[moduleId]/chat.tsx`
 
@@ -65,6 +66,20 @@ This subtree does NOT own:
   - Read outside React via `getState()` in: `app/_layout.tsx`, `src/api/client.ts`
   - Read inside React hook via selector in: `src/hooks/useSSE.ts`
 
+- `toast.store.ts` ([`src/stores/toast.store.ts`](./src/stores/toast.store.ts))
+  - In-memory only — not persisted
+  - Written via `getState().addToast()` in: `src/hooks/useSSE.ts` (module complete)
+  - Read via selector in: `src/components/display/ToastProvider.tsx`
+
+- `ToastProvider` ([`src/components/display/ToastProvider.tsx`](./src/components/display/ToastProvider.tsx))
+  - Reads: `toast.store` toast queue
+  - Renders: animated toast overlay (absolutely positioned, zIndex `$3`)
+  - Placed as: sibling to `<Slot>` inside `QueryClientProvider` in `app/_layout.tsx`
+
+- `ErrorBoundary` ([`src/components/layout/ErrorBoundary.tsx`](./src/components/layout/ErrorBoundary.tsx))
+  - Wraps: `<Slot>` in `app/_layout.tsx` to catch unhandled render errors
+  - Shows: "Something went wrong" card with a retry button that resets error state
+
 - TanStack Query ([`src/api/`](./src/api/))
   - Owns: all server state (courses, modules, progress, sessions)
   - Must not overlap with: Zustand stores in [`src/stores/`](./src/stores/)
@@ -73,8 +88,9 @@ This subtree does NOT own:
 
 ## Entry points
 
-- App bootstrap: [`app/_layout.tsx`](./app/_layout.tsx) — TamaguiProvider, QueryClient, auth guard
-- Auth flow: [`app/(auth)/sign-in.tsx`](./app/(auth)/sign-in.tsx)
+- App bootstrap: [`app/_layout.tsx`](./app/_layout.tsx) — TamaguiProvider, QueryClient, ErrorBoundary, ToastProvider, auth guard
+- Auth flow: [`app/(auth)/sign-in.tsx`](./app/(auth)/sign-in.tsx) — sign-in; links to sign-up
+- New user registration: [`app/(auth)/sign-up.tsx`](./app/(auth)/sign-up.tsx)
 - Main app shell: [`app/(app)/index.tsx`](./app/(app)/index.tsx)
 - Chat feature:
   - Route: `app/(app)/courses/[id]/modules/[moduleId]/chat.tsx`

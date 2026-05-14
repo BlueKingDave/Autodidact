@@ -1,5 +1,6 @@
 // layout
 export { Screen } from './layout/Screen';
+export { ErrorBoundary } from './layout/ErrorBoundary';
 
 // typography
 export { AppText } from './typography/AppText';
@@ -18,3 +19,6 @@ export { ProgressBar } from './display/ProgressBar';
 export { PositionBadge } from './display/PositionBadge';
 export { ChatBubble } from './display/ChatBubble';
 export { EmptyState } from './display/EmptyState';
+export { SkeletonLine, SkeletonCard } from './display/Skeleton';
+export { Toast } from './display/Toast';
+export { ToastProvider } from './display/ToastProvider';

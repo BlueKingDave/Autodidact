@@ -8,6 +8,13 @@ import { Screen, Heading, AppText, Input, Button, Chip } from '@/components';
 type Difficulty = 'beginner' | 'intermediate' | 'advanced';
 const difficulties: Difficulty[] = ['beginner', 'intermediate', 'advanced'];
 
+const STATUS_LABELS: Record<string, string> = {
+  waiting:   'Queued...',
+  active:    'Generating course...',
+  completed: 'Almost ready...',
+  failed:    'Failed',
+};
+
 export default function HomeScreen() {
   const [topic, setTopic] = useState('');
   const [difficulty, setDifficulty] = useState<Difficulty>('beginner');
@@ -64,7 +71,7 @@ export default function HomeScreen() {
           disabled={!topic.trim()}
           onPress={handleStart}
         >
-          {isGenerating ? `Building course (${status ?? '...'})` : 'Start Learning'}
+          {isGenerating ? `Building course — ${STATUS_LABELS[status ?? ''] ?? '...'}` : 'Start Learning'}
         </Button>
 
         {failed && <AppText variant="error" textAlign="center">Course generation failed. Please try again.</AppText>}

@@ -4,6 +4,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useChatStore } from '../stores/chat.store';
 import { API_BASE_URL } from '../api/client';
 import { useAuthStore } from '../stores/auth.store';
+import { useToastStore } from '../stores/toast.store';
 
 export function useSSE(sessionId: string, courseId: string) {
   const queryClient = useQueryClient();
@@ -34,7 +35,7 @@ export function useSSE(sessionId: string, courseId: string) {
               appendStreamToken(data.content);
             } else if (data.type === 'complete') {
               finalizeStreamMessage();
-              // Invalidate progress so the module list refreshes
+              useToastStore.getState().addToast('Module complete! Great work.', 'success');
               void queryClient.invalidateQueries({ queryKey: ['progress', courseId] });
             } else if (data.type === 'error') {
               finalizeStreamMessage();

@@ -1,8 +1,8 @@
-import { FlatList } from 'react-native';
+import { FlatList, RefreshControl } from 'react-native';
 import { useRouter } from 'expo-router';
-import { XStack, YStack, Spinner } from 'tamagui';
+import { useTheme, XStack, YStack } from 'tamagui';
 import { useUserCourses } from '@/api/courses';
-import { Screen, Card, AppText, Badge, EmptyState } from '@/components';
+import { Screen, Card, AppText, Badge, EmptyState, SkeletonCard } from '@/components';
 
 type Course = {
   id: string;
@@ -14,13 +14,16 @@ type Course = {
 
 export default function MyCoursesScreen() {
   const router = useRouter();
-  const { data: courses, isLoading } = useUserCourses();
+  const theme = useTheme();
+  const { data: courses, isLoading, isRefetching, refetch } = useUserCourses();
 
   if (isLoading) {
     return (
       <Screen>
-        <YStack flex={1} alignItems="center" justifyContent="center">
-          <Spinner color="$primary" />
+        <YStack gap="$3" paddingVertical="$1">
+          <SkeletonCard />
+          <SkeletonCard />
+          <SkeletonCard />
         </YStack>
       </Screen>
     );
@@ -32,7 +35,20 @@ export default function MyCoursesScreen() {
         data={courses ?? []}
         keyExtractor={(item: Course) => item.id}
         contentContainerStyle={{ gap: 12, paddingVertical: 4 }}
-        ListEmptyComponent={<EmptyState message="No courses yet. Start learning something!" />}
+        refreshControl={
+          <RefreshControl
+            refreshing={isRefetching}
+            onRefresh={refetch}
+            tintColor={theme.primary.get()}
+          />
+        }
+        ListEmptyComponent={
+          <EmptyState
+            icon="book-outline"
+            message="No courses yet. Start learning something!"
+            action={{ label: 'Start learning', onPress: () => router.push('/(app)') }}
+          />
+        }
         renderItem={({ item }: { item: Course }) => (
           <Card variant="default" onPress={() => router.push(`/(app)/courses/${item.id}`)}>
             <XStack justifyContent="space-between" alignItems="flex-start" marginBottom="$2">
